@@ -47,6 +47,7 @@ public class DataReadWrite {
 			while ((line = readInput.readLine()) != null) {
 
 				lineNumber++;
+				exit:
 				for (int currentChar = 0; currentChar < line.length(); currentChar++) {
 
 					switch (line.charAt(currentChar)) {
@@ -66,9 +67,14 @@ public class DataReadWrite {
 								lineNumber++;
 							}
 
-							if (line.contains("*/")) {
+							if (line!=null) {
+								
+								if (line.contains("*/")) {
 
-								line = line.substring(line.indexOf("*/") + 2);
+									line = line.substring(line.indexOf("*/") + 2);
+								}
+							} else {
+								break exit;
 							}
 						}
 						break;

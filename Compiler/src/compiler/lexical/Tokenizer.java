@@ -9,6 +9,7 @@ import java.util.TreeMap;
 
 import compiler.helper.DataReadWrite;
 import compiler.utilities.CompilerEnum.TokenType;
+import compiler.utilities.CompilerEnum.TokenValue;
 
 /**
  * Generating tokens from the source code
@@ -35,9 +36,22 @@ public class Tokenizer {
             	forward++;
             } else {
           
+            	for (TokenValue value : TokenValue.values()) {
+					
+            		if (input.substring(lexemeBegin, forward).equalsIgnoreCase(value.tokenValue())) {
+            			return new Token(TokenType.KEYWORD, input.substring(lexemeBegin, forward), lineNumber);
+					}
+				}
                 return new Token(TokenType.IDENTIFIER, input.substring(lexemeBegin, forward), lineNumber);                
             }
         }
+        
+        for (TokenValue value : TokenValue.values()) {
+			
+    		if (input.substring(lexemeBegin, forward).equalsIgnoreCase(value.tokenValue())) {
+    			return new Token(TokenType.KEYWORD, input.substring(lexemeBegin, forward), lineNumber);
+			}
+		}
 		return new Token(TokenType.IDENTIFIER, input.substring(lexemeBegin, forward), lineNumber);
 	}
 	
@@ -300,12 +314,15 @@ public class Tokenizer {
     		while (entrySet.hasNext()) {
 				
     			entry = entrySet.next();
-    			tokens = nextToken(entry.getKey(), entry.getValue());
-                for(Token token : tokens) {
-                    System.out.println(token);
-                    //DataReadWrite.writeOutput(token);
-                    tokenCount++;
-                }
+    			if (entry.getValue()!=null) {
+    				
+        			tokens = nextToken(entry.getKey(), entry.getValue());
+                    for(Token token : tokens) {
+                        System.out.println(token);
+                        //DataReadWrite.writeOutput(token);
+                        tokenCount++;
+                    }
+				}
 			}        	
 		} catch (Exception e) {
 			e.printStackTrace();
