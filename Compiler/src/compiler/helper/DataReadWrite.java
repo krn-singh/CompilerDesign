@@ -15,9 +15,9 @@ public class DataReadWrite {
 	private static BufferedReader readInput;
 	private static PrintWriter printError;
 	private static PrintWriter printOutput;
-	private static final String INPUT_FILE_PATH = "H:\\eclipse-workspace-oxygen\\Compiler\\data\\input.txt";
-	private static final String ERROR_FILE_PATH = "H:\\eclipse-workspace-oxygen\\Compiler\\data\\error.txt";
-	private static final String OUTPUT_FILE_PATH = "H:\\eclipse-workspace-oxygen\\Compiler\\data\\output.txt";
+	private static final String INPUT_FILE_PATH = "data\\input.txt";
+	private static final String ERROR_FILE_PATH = "data\\error.txt";
+	private static final String OUTPUT_FILE_PATH = "data\\output.txt";
 
 	/*
 	 * public static List<String> readInput() throws IOException {
