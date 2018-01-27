@@ -8,7 +8,18 @@ public class CompilerEnum {
 	}
 	
 	public static enum TokenValue {
+
+		AND("and"), NOT("not"), OR("or"), IF("if"), THEN("then"), ELSE("else"), FOR("for"), CLASS("class"), INT("int"), FLOAT("float"), GET("get"), PUT("put"), RETURN("return"), PROGRAM("program");
 		
-		AND, NOT, OR, IF, THEN, ELSE, FOR, CLASS, INT, FLOAT, GET, PUT, RETURN, PROGRAM
+		private final String value;
+		
+		TokenValue (String value) {
+			this.value=value;
+		}
+		
+		public String tokenValue() {
+			
+			return value;
+		}
 	}
 }
