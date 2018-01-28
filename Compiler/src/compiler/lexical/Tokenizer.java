@@ -305,9 +305,10 @@ public class Tokenizer {
     public static void main(String[] args) throws IOException {
    	
     	TreeMap<Integer, String> inputList = DataReadWrite.readInput();
-    	List<Token> tokens=null;
+    	List<Token> receivedTokens=null;
     	int tokenCount=0;
-    	List<Token> t = new ArrayList<Token>();
+    	List<Token> outputTokens = new ArrayList<Token>();
+    	List<String> aToCcFormat = new ArrayList<String>();
     	try {
     		
     		Iterator<Map.Entry<Integer, String>> entrySet = inputList.entrySet().iterator();
@@ -318,20 +319,23 @@ public class Tokenizer {
     			if (entry.getValue()!=null) {
     				
     				String aToCc="";
-        			tokens = nextToken(entry.getKey(), entry.getValue());
-                    for(Token token : tokens) {
-                        System.out.println(token);
+    				receivedTokens = nextToken(entry.getKey(), entry.getValue());
+                    for(Token token : receivedTokens) {
+                        //System.out.println(token);
                         aToCc+=token.type.toString()+"+";
                         tokenCount++;
-                        t.add(token);
+                        outputTokens.add(token);
                     }
                     if (aToCc!="") {
-                    	System.out.println(aToCc.substring(0, aToCc.length()-1));
-					}          
+                    	aToCcFormat.add(aToCc.substring(0, aToCc.length()-1));
+					} else {
+						aToCcFormat.add(aToCc);
+					}                    
 				}
 			}
     		
-    		DataReadWrite.writeOutput(t);
+    		DataReadWrite.writeOutput(outputTokens);
+    		DataReadWrite.writeAToCc(aToCcFormat);
     		
 		} catch (Exception e) {
 			e.printStackTrace();
