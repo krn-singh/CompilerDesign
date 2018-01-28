@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.util.List;
 import java.util.TreeMap;
 
 import compiler.lexical.Token;
@@ -63,13 +64,14 @@ public class DataReadWrite {
 							String intialLine = line;
 							int currentLineLength = line.length();
 							
+							// Consuming Input before the start of slash-star comment
 							line = line.substring(0, currentChar - 1);
 							input.put(lineNumber, line);
 							lineNumber++;
 							
-							line = intialLine.substring(currentChar +1, currentLineLength);
-							if (line.contains("*/")) {
-								line = line.substring(line.indexOf("*/") + 2);
+							// Consuming the input after the slash-star comment in the same line
+							if (intialLine.substring(currentChar +1, currentLineLength).contains("*/")) {
+								line = line+" "+intialLine.substring(intialLine.indexOf("*/") + 2);
 								lineNumber--;
 								break;
 							}
@@ -108,13 +110,15 @@ public class DataReadWrite {
 		return input;
 	}
 
-	public static void writeOutput(Token token) throws IOException {
+	public static void writeOutput(List<Token> tokens) throws IOException {
 
 		printOutput = new PrintWriter(new FileOutputStream(OUTPUT_FILE_PATH));
 		try {
 
-			printOutput.println(token);
-
+			for (Token token : tokens) {
+				
+				printOutput.println(token);
+			}			
 		} catch (Exception e) {
 
 			e.printStackTrace();

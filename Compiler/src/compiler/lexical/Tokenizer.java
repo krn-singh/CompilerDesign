@@ -307,8 +307,9 @@ public class Tokenizer {
     	TreeMap<Integer, String> inputList = DataReadWrite.readInput();
     	List<Token> tokens=null;
     	int tokenCount=0;
+    	List<Token> t = new ArrayList<Token>();
     	try {
-
+    		
     		Iterator<Map.Entry<Integer, String>> entrySet = inputList.entrySet().iterator();
     		Map.Entry<Integer, String> entry;
     		while (entrySet.hasNext()) {
@@ -321,14 +322,17 @@ public class Tokenizer {
                     for(Token token : tokens) {
                         System.out.println(token);
                         aToCc+=token.type.toString()+"+";
-                        //DataReadWrite.writeOutput(token);
                         tokenCount++;
+                        t.add(token);
                     }
                     if (aToCc!="") {
                     	System.out.println(aToCc.substring(0, aToCc.length()-1));
 					}          
 				}
-			}        	
+			}
+    		
+    		DataReadWrite.writeOutput(t);
+    		
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println("No content in input file");
