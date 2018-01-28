@@ -308,9 +308,9 @@ public class Tokenizer {
         }
         return tokens;
     }
-
-    public static void main(String[] args) throws IOException {
-   	
+    
+    public static void lexicalAnalyzer() throws IOException {
+    	
     	TreeMap<Integer, String> inputList = DataReadWrite.readInput();
     	List<Token> receivedTokens=null;
     	int tokenCount=0;
