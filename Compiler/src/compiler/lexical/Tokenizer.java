@@ -292,7 +292,16 @@ public class Tokenizer {
                 } else if (Character.isDigit(input.charAt(currentChar)) && input.charAt(currentChar)=='0') {
                 	
                 	currentChar++;
-                    tokens.add(new Token(TokenType.INTEGER, "0", lineNumber));
+                	if (input.charAt(currentChar)=='.') {
+						
+                		currentChar--;
+                        token = numericLexeme(input, currentChar, lineNumber);
+                        currentChar += token.getTokenValue().length();
+                        tokens.add(token);
+					} else {
+
+						tokens.add(new Token(TokenType.INTEGER, "0", lineNumber));
+					}                  
                 } else if (Character.isDigit(input.charAt(currentChar))) {
 
                     token = numericLexeme(input, currentChar, lineNumber);
