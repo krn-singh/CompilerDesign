@@ -42,7 +42,7 @@ public class Tokenizer {
             			return new Token(TokenType.KEYWORD, input.substring(lexemeBegin, forward), lineNumber);
 					}
 				}
-                return new Token(TokenType.IDENTIFIER, input.substring(lexemeBegin, forward), lineNumber);                
+                return new Token(TokenType.ID, input.substring(lexemeBegin, forward), lineNumber);                
             }
         }
         
@@ -52,7 +52,7 @@ public class Tokenizer {
     			return new Token(TokenType.KEYWORD, input.substring(lexemeBegin, forward), lineNumber);
 			}
 		}
-		return new Token(TokenType.IDENTIFIER, input.substring(lexemeBegin, forward), lineNumber);
+		return new Token(TokenType.ID, input.substring(lexemeBegin, forward), lineNumber);
 	}
 	
 	/**
@@ -316,12 +316,17 @@ public class Tokenizer {
     			entry = entrySet.next();
     			if (entry.getValue()!=null) {
     				
+    				String aToCc="";
         			tokens = nextToken(entry.getKey(), entry.getValue());
                     for(Token token : tokens) {
                         System.out.println(token);
+                        aToCc+=token.type.toString()+"+";
                         //DataReadWrite.writeOutput(token);
                         tokenCount++;
                     }
+                    if (aToCc!="") {
+                    	System.out.println(aToCc.substring(0, aToCc.length()-1));
+					}          
 				}
 			}        	
 		} catch (Exception e) {

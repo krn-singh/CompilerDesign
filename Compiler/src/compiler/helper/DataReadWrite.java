@@ -60,9 +60,20 @@ public class DataReadWrite {
 
 						} else if (line.charAt(currentChar) == '*') {
 
+							String intialLine = line;
+							int currentLineLength = line.length();
+							
 							line = line.substring(0, currentChar - 1);
 							input.put(lineNumber, line);
 							lineNumber++;
+							
+							line = intialLine.substring(currentChar +1, currentLineLength);
+							if (line.contains("*/")) {
+								line = line.substring(line.indexOf("*/") + 2);
+								lineNumber--;
+								break;
+							}
+							
 							while ((line = readInput.readLine()) != null && (!line.contains("*/"))) {
 								lineNumber++;
 							}
