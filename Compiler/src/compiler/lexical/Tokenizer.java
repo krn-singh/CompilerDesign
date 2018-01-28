@@ -20,6 +20,9 @@ public class Tokenizer {
 
 
 	public static Token token;
+	public static List<String> errors = new ArrayList<String>();
+	public static List<Token> outputTokens = new ArrayList<Token>();
+	public static List<String> aToCcFormat = new ArrayList<String>();
 	
 	/**
 	 * finds the alphanumeric(only identifiers or reserved keywords but not literals, punctuation or other operators) token in the given input 
@@ -295,6 +298,10 @@ public class Tokenizer {
                     token = numericLexeme(input, currentChar, lineNumber);
                     currentChar += token.getTokenValue().length();
                     tokens.add(token);
+                } else {
+                	
+                	errors.add("<ErrorString: '"+Character.toString(input.charAt(currentChar))+"', Line Number: "+lineNumber+">");
+                	currentChar++;
                 }
                 break;
             }
@@ -307,8 +314,7 @@ public class Tokenizer {
     	TreeMap<Integer, String> inputList = DataReadWrite.readInput();
     	List<Token> receivedTokens=null;
     	int tokenCount=0;
-    	List<Token> outputTokens = new ArrayList<Token>();
-    	List<String> aToCcFormat = new ArrayList<String>();
+    	
     	try {
     		
     		Iterator<Map.Entry<Integer, String>> entrySet = inputList.entrySet().iterator();
@@ -321,11 +327,12 @@ public class Tokenizer {
     				String aToCc="";
     				receivedTokens = nextToken(entry.getKey(), entry.getValue());
                     for(Token token : receivedTokens) {
-                        //System.out.println(token);
+                        System.out.println(token);
                         aToCc+=token.type.toString()+"+";
                         tokenCount++;
                         outputTokens.add(token);
                     }
+                    
                     if (aToCc!="") {
                     	aToCcFormat.add(aToCc.substring(0, aToCc.length()-1));
 					} else {
@@ -336,6 +343,7 @@ public class Tokenizer {
     		
     		DataReadWrite.writeOutput(outputTokens);
     		DataReadWrite.writeAToCc(aToCcFormat);
+    		DataReadWrite.writeErrors(errors);
     		
 		} catch (Exception e) {
 			e.printStackTrace();

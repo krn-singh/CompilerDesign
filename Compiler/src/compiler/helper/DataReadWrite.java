@@ -131,5 +131,24 @@ public class DataReadWrite {
 		}
 
 	}
+	
+	public static void writeErrors(List<String> errors) throws IOException {
+
+		printError = new PrintWriter(new FileOutputStream(ERROR_FILE_PATH));
+		try {
+
+			for (String error : errors) {
+
+				printError.println(error);
+			}
+		} catch (Exception e) {
+
+			e.printStackTrace();
+		} finally {
+
+			printError.close();
+		}
+
+	}
 
 }
