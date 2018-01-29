@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import compiler.constants.CompilerEnum.TokenType;
+import compiler.constants.CompilerEnum.TokenValue;
 import compiler.helper.DataReadWrite;
-import compiler.utilities.CompilerEnum.TokenType;
-import compiler.utilities.CompilerEnum.TokenValue;
 
 /**
  * Generating tokens from the source code
@@ -17,18 +17,13 @@ import compiler.utilities.CompilerEnum.TokenValue;
  * @version 1.0
  */
 public class Tokenizer {
-
-
-	public static Token token;
-	public static List<String> errors = new ArrayList<String>();
-	public static List<Token> outputTokens = new ArrayList<Token>();
-	public static List<String> aToCcFormat = new ArrayList<String>();
 	
 	/**
 	 * finds the alphanumeric(only identifiers or reserved keywords but not literals, punctuation or other operators) token in the given input 
 	 * @param input Input String
 	 * @param lexemeBegin Starting index of the lexeme to be generated
-	 * @return token
+	 * @param lineNumber Line number in the source program
+	 * @return token 
 	 */
 	public static Token alphaLexeme(String input, int lexemeBegin, Integer lineNumber) {
 		
@@ -62,6 +57,7 @@ public class Tokenizer {
 	 * finds the numeric(only integers and floats) token in the given input 
 	 * @param input Input String
 	 * @param lexemeBegin Starting index of the lexeme to be generated
+	 * @param lineNumber Line number in the source program
 	 * @return token
 	 */
     public static Token numericLexeme(String input, int lexemeBegin, Integer lineNumber) {
@@ -161,6 +157,12 @@ public class Tokenizer {
         return new Token(TokenType.INTEGER, input.substring(lexemeBegin, forward), lineNumber);
     }
 
+    /**
+     * Iterates through the given input until n unless a valid token is found
+     * @param lineNumber Line number in the source program
+     * @param input Input String
+     * @return list of valid tokens in the provided input
+     */
     public static List<Token> nextToken(Integer lineNumber, String input) {
         List<Token> tokens = new ArrayList<Token>();
         
@@ -318,6 +320,10 @@ public class Tokenizer {
         return tokens;
     }
     
+    /**
+     * The main function that calls the nextToken() function repeatedly to generate all the tokens for the given input. Once it hits the end of source program, it outputs all the tokens in the output file and encountered errors in the error file.
+     * @throws IOException
+     */
     public static void lexicalAnalyzer() throws IOException {
     	
     	TreeMap<Integer, String> inputList = DataReadWrite.readInput();
@@ -359,5 +365,10 @@ public class Tokenizer {
 			System.out.println("No content in input file");
 		}
         System.out.println("Total tokens: "+tokenCount);
-    }
+    }    
+
+	public static Token token;
+	public static List<String> errors = new ArrayList<String>();
+	public static List<Token> outputTokens = new ArrayList<Token>();
+	public static List<String> aToCcFormat = new ArrayList<String>();
 }

@@ -1,5 +1,10 @@
-package compiler.utilities;
+package compiler.constants;
 
+/**
+ * Contains all the enums and other constants required for the compiler
+ * @author Karan
+ * @version 1.0
+ */
 public class CompilerEnum {
 
 	public static enum TokenType {

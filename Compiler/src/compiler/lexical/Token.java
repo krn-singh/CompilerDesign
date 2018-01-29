@@ -1,7 +1,12 @@
 package compiler.lexical;
 
-import compiler.utilities.CompilerEnum.TokenType;
+import compiler.constants.CompilerEnum.TokenType;
 
+/**
+ * The Token class contains the information regarding the token type (ID, EQLTO,.....), token value (lexeme) and its location in the source code
+ * @author Karan
+ * @version 1.0
+ */
 public class Token {
 
     public final TokenType type;
