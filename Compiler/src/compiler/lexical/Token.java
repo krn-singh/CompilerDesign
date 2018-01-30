@@ -30,11 +30,6 @@ public class Token {
 	public Integer getLineNumber() {
 		return lineNumber;
 	}
-
-	public static void createToken() {
-		
-		
-	}
 	
 	public String toString() {
 

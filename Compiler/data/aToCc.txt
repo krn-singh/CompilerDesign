@@ -1,1 +1,1 @@
-FLOAT
+program { int ID = INTEGER ; float ID = FLOAT_NUM ; }

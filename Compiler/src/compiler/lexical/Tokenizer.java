@@ -64,6 +64,7 @@ public class Tokenizer {
     	
     	int forward = lexemeBegin;
     	forward++;
+    	int checkPoint;
         for(; forward < input.length(); ) {
         	
         	if(Character.isDigit(input.charAt(forward))) {
@@ -77,10 +78,16 @@ public class Tokenizer {
             		
             		// the control reaches here if current char is a digit after '.' and is not the last character in input.
             		
-            		forward++;
-            		for ( ; forward < input.length(); ) {
-						           			
+            		checkPoint = forward;
+            		forward++;            		
+            		for ( ; forward < input.length(); ) {						
+            			
             			if(Character.isDigit(input.charAt(forward))) {
+            				
+            				if (input.charAt(forward)!='0') {
+								
+            					checkPoint = forward;
+							}
             				forward++;
             			} else if (input.charAt(forward)=='e' && forward < input.length()-1) {
     						
@@ -90,7 +97,7 @@ public class Tokenizer {
             				if (input.charAt(forward)=='0') {
     							
                     			forward++;
-                    			return new Token(TokenType.FLOAT, input.substring(lexemeBegin, forward), lineNumber);
+                    			return new Token(TokenType.FLOAT_NUM, input.substring(lexemeBegin, forward), lineNumber);
     						} else if(Character.isDigit(input.charAt(forward))) {
     							
     							// the control reaches here if the previous character('e') is preceded by digits.
@@ -102,11 +109,11 @@ public class Tokenizer {
 										forward++;
 									} else {
 										
-										return new Token(TokenType.FLOAT, input.substring(lexemeBegin, forward), lineNumber);
+										return new Token(TokenType.FLOAT_NUM, input.substring(lexemeBegin, forward), lineNumber);
 									}
     							}
 							
-    							return new Token(TokenType.FLOAT, input.substring(lexemeBegin, forward), lineNumber);
+    							return new Token(TokenType.FLOAT_NUM, input.substring(lexemeBegin, forward), lineNumber);
 						    } else if((input.charAt(forward)=='+' && (forward<input.length()-1)) || (input.charAt(forward)=='-' && (forward < input.length()-1))) {
 						    	
 						    	// the control reaches here if the previous character('e') is preceded by +/-.
@@ -118,30 +125,30 @@ public class Tokenizer {
 										forward++;
 									} else {
 										forward-=2;
-										return new Token(TokenType.FLOAT, input.substring(lexemeBegin, forward), lineNumber);
+										return new Token(TokenType.FLOAT_NUM, input.substring(lexemeBegin, forward), lineNumber);
 									}
     							}
 							
-    							return new Token(TokenType.FLOAT, input.substring(lexemeBegin, forward), lineNumber);
+    							return new Token(TokenType.FLOAT_NUM, input.substring(lexemeBegin, forward), lineNumber);
 						    	
 						    } else {
 						    	
     							forward--;
-    							return new Token(TokenType.FLOAT, input.substring(lexemeBegin, forward), lineNumber);
+    							return new Token(TokenType.FLOAT_NUM, input.substring(lexemeBegin, forward), lineNumber);
 						    }
     					} else {
     						
-    						return new Token(TokenType.FLOAT, input.substring(lexemeBegin, forward), lineNumber);
+    						return new Token(TokenType.FLOAT_NUM, input.substring(lexemeBegin, checkPoint+1), lineNumber);
     					}
 					}
             		
-            		return new Token(TokenType.FLOAT, input.substring(lexemeBegin, forward), lineNumber);               	
+            		return new Token(TokenType.FLOAT_NUM, input.substring(lexemeBegin, checkPoint+1), lineNumber);               	
 				} else if(Character.isDigit(input.charAt(forward)) && forward == input.length()-1) {
 					
 					// the control reaches here if the previous character('.') is preceded by digit, which is last in the input.
 					
 					forward++;
-					return new Token(TokenType.FLOAT, input.substring(lexemeBegin, forward), lineNumber);					
+					return new Token(TokenType.FLOAT_NUM, input.substring(lexemeBegin, forward), lineNumber);					
 				} else {
 					
 					// the control reaches here if the previous character('.') is not preceded by required characters for the FLOAT token.
@@ -291,7 +298,7 @@ public class Tokenizer {
                     token = alphaLexeme(input, currentChar, lineNumber);
                     currentChar += token.getTokenValue().length();
                     tokens.add(token);
-                } else if (Character.isDigit(input.charAt(currentChar)) && input.charAt(currentChar)=='0') {
+                } else if (Character.isDigit(input.charAt(currentChar)) && input.charAt(currentChar)=='0' && currentChar<input.length()-1) {
                 	
                 	currentChar++;
                 	if (input.charAt(currentChar)=='.') {
@@ -334,28 +341,34 @@ public class Tokenizer {
     		
     		Iterator<Map.Entry<Integer, String>> entrySet = inputList.entrySet().iterator();
     		Map.Entry<Integer, String> entry;
+    		String aToCc="";
     		while (entrySet.hasNext()) {
 				
+    			
     			entry = entrySet.next();
     			if (entry.getValue()!=null) {
     				
-    				String aToCc="";
     				receivedTokens = nextToken(entry.getKey(), entry.getValue());
                     for(Token token : receivedTokens) {
                         System.out.println(token);
-                        aToCc+=token.type.toString()+"+";
+                        if (token.type.toString().equalsIgnoreCase("ID")) {
+                        	aToCc+=token.type.toString()+" ";
+						} else if (token.type.toString().equalsIgnoreCase("FLOAT_NUM")) {
+							aToCc+=token.type.toString()+" ";
+						} else if (token.type.toString().equalsIgnoreCase("INTEGER")) {
+							aToCc+=token.type.toString()+" ";
+						} else {
+							aToCc+=token.tokenValue+" ";
+						}
+                        
                         tokenCount++;
                         outputTokens.add(token);
-                    }
-                    
-                    if (aToCc!="") {
-                    	aToCcFormat.add(aToCc.substring(0, aToCc.length()-1));
-					} else {
-						aToCcFormat.add(aToCc);
-					}                    
+                    }                  
 				}
 			}
     		
+    		System.out.println(aToCc.substring(0, aToCc.length()-1));
+    		aToCcFormat.add(aToCc.substring(0, aToCc.length()-1));
     		DataReadWrite.writeOutput(outputTokens);
     		DataReadWrite.writeAToCc(aToCcFormat);
     		DataReadWrite.writeErrors(errors);

@@ -1,1 +1,4 @@
-0.23
+program {
+	int a=10;
+	float b=0.23;
+}
