@@ -9,7 +9,7 @@ public class CompilerEnum {
 
 	public static enum TokenType {
 		
-		id, intNum, floatNum, keyword, eq, neq, lt, gt, leq, geq, SEMICOL, COMMA, DOT, COL, sr, PLUS, MINUS, STAR, FSLASH, EQL, LPAREN, RPAREN, LCURL, RCURL, LSQR, RSQR
+		id, intNum, floatNum, keyword, eq, neq, lt, gt, leq, geq, operator, puntuation, SEMICOL, COMMA, DOT, COL, sr, PLUS, MINUS, STAR, FSLASH, EQL, LPAREN, RPAREN, LCURL, RCURL, LSQR, RSQR
 	}
 	
 	public static enum TokenValue {

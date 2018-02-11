@@ -181,10 +181,10 @@ public class Tokenizer {
                 currentChar++;
                 if (input.charAt(currentChar)=='=') {
 					
-                	tokens.add(new Token(TokenType.eq, "==", lineNumber));
+                	tokens.add(new Token(TokenType.operator, "eq", lineNumber));
                 	currentChar++;
 				} else {
-					tokens.add(new Token(TokenType.EQL, "=", lineNumber));
+					tokens.add(new Token(TokenType.operator, "=", lineNumber));
 				}
                 break;
                 
@@ -192,14 +192,14 @@ public class Tokenizer {
                 currentChar++;
                 if (input.charAt(currentChar)=='>') {
 					
-                	tokens.add(new Token(TokenType.neq, "<>", lineNumber));
+                	tokens.add(new Token(TokenType.operator, "neq", lineNumber));
                 	currentChar++;
 				} else if(input.charAt(currentChar)=='=') {
 					
-                	tokens.add(new Token(TokenType.leq, "<=", lineNumber));
+                	tokens.add(new Token(TokenType.operator, "leq", lineNumber));
                 	currentChar++;
 				} else {
-					tokens.add(new Token(TokenType.lt, "<", lineNumber));
+					tokens.add(new Token(TokenType.operator, "lt", lineNumber));
 				}
                 break;
                 
@@ -207,25 +207,25 @@ public class Tokenizer {
                 currentChar++;
                 if (input.charAt(currentChar)=='=') {
 					
-                	tokens.add(new Token(TokenType.geq, ">=", lineNumber));
+                	tokens.add(new Token(TokenType.operator, "geq", lineNumber));
                 	currentChar++;
 				} else {
-					tokens.add(new Token(TokenType.gt, ">", lineNumber));
+					tokens.add(new Token(TokenType.operator, "gt", lineNumber));
 				}
                 break;
                 
             case ';':
-                tokens.add(new Token(TokenType.SEMICOL, ";", lineNumber));
+                tokens.add(new Token(TokenType.puntuation, ";", lineNumber));
                 currentChar++;
                 break;
                 
             case ',':
-                tokens.add(new Token(TokenType.COMMA, ",", lineNumber));
+                tokens.add(new Token(TokenType.puntuation, ",", lineNumber));
                 currentChar++;
                 break;
                 
             case '.':
-                tokens.add(new Token(TokenType.DOT, ".", lineNumber));
+                tokens.add(new Token(TokenType.puntuation, ".", lineNumber));
                 currentChar++;
                 break;
                 
@@ -233,60 +233,60 @@ public class Tokenizer {
                 currentChar++;
                 if (input.charAt(currentChar)==':') {
 					
-                	tokens.add(new Token(TokenType.sr, "::", lineNumber));
+                	tokens.add(new Token(TokenType.operator, "sr", lineNumber));
                 	currentChar++;
 				} else {
-					tokens.add(new Token(TokenType.COL, ":", lineNumber));
+					tokens.add(new Token(TokenType.puntuation, ":", lineNumber));
 				}
                 break;
                 
             case '(':
-                tokens.add(new Token(TokenType.LPAREN, "(", lineNumber));
+                tokens.add(new Token(TokenType.puntuation, "(", lineNumber));
                 currentChar++;
                 break;
                 
             case ')':
-                tokens.add(new Token(TokenType.RPAREN, ")", lineNumber));
+                tokens.add(new Token(TokenType.puntuation, ")", lineNumber));
                 currentChar++;
                 break;
                 
             case '{':
-                tokens.add(new Token(TokenType.LCURL, "{", lineNumber));
+                tokens.add(new Token(TokenType.puntuation, "{", lineNumber));
                 currentChar++;
                 break;
                 
             case '}':
-                tokens.add(new Token(TokenType.RCURL, "}", lineNumber));
+                tokens.add(new Token(TokenType.puntuation, "}", lineNumber));
                 currentChar++;
                 break;
                 
             case '[':
-                tokens.add(new Token(TokenType.LSQR, "[", lineNumber));
+                tokens.add(new Token(TokenType.puntuation, "[", lineNumber));
                 currentChar++;
                 break;
                 
             case ']':
-                tokens.add(new Token(TokenType.RSQR, "]", lineNumber));
+                tokens.add(new Token(TokenType.puntuation, "]", lineNumber));
                 currentChar++;
                 break;
                 
             case '+':
-                tokens.add(new Token(TokenType.PLUS, "+", lineNumber));
+                tokens.add(new Token(TokenType.operator, "+", lineNumber));
                 currentChar++;
                 break;
                
             case '-':
-                tokens.add(new Token(TokenType.MINUS, "-", lineNumber));
+                tokens.add(new Token(TokenType.operator, "-", lineNumber));
                 currentChar++;
                 break;
                 
             case '*':
-                tokens.add(new Token(TokenType.STAR, "*", lineNumber));
+                tokens.add(new Token(TokenType.operator, "*", lineNumber));
                 currentChar++;
                 break;
                 
             case '/':
-            	tokens.add(new Token(TokenType.FSLASH, "/", lineNumber));
+            	tokens.add(new Token(TokenType.operator, "/", lineNumber));
                 currentChar++;
                 break;
                 
@@ -351,12 +351,8 @@ public class Tokenizer {
     				receivedTokens = nextToken(entry.getKey(), entry.getValue());
                     for(Token token : receivedTokens) {
                         System.out.println(token);
-                        if (token.type.toString().equalsIgnoreCase("id")) {
+                        if (token.type.toString().equalsIgnoreCase("id") || token.type.toString().equalsIgnoreCase("floatNum") || token.type.toString().equalsIgnoreCase("intNum")) {
                         	aToCc+=token.type.toString()+" ";
-						} else if (token.type.toString().equalsIgnoreCase("floatNum")) {
-							aToCc+=token.type.toString()+" ";
-						} else if (token.type.toString().equalsIgnoreCase("intNum")) {
-							aToCc+=token.type.toString()+" ";
 						} else {
 							aToCc+=token.tokenValue+" ";
 						}
