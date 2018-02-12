@@ -1,0 +1,1 @@
+float id ( ) { float id ; id = intNum * ( intNum + floatNum / floatNum ) ; id = floatNum + ( ( floatNum * floatNum ) - floatNum ) + floatNum gt intNum and not - intNum ; return ( id ) ; } ;

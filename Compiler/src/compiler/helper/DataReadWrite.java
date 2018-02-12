@@ -102,7 +102,7 @@ public class DataReadWrite {
 	 */
 	public static void writeOutput(List<Token> tokens) throws IOException {
 	
-		printOutput = new PrintWriter(new FileOutputStream(OUTPUT_FILE_PATH));
+		printOutput = new PrintWriter(new FileOutputStream(TOKEN_FILE_PATH));
 		try {
 	
 			for (Token token : tokens) {
@@ -150,7 +150,7 @@ public class DataReadWrite {
 	 */
 	public static void writeErrors(List<String> errors) throws IOException {
 
-		printError = new PrintWriter(new FileOutputStream(ERROR_FILE_PATH));
+		printError = new PrintWriter(new FileOutputStream(INPUT_ERROR_FILE_PATH));
 		try {
 
 			for (String error : errors) {
@@ -171,10 +171,10 @@ public class DataReadWrite {
 	private static PrintWriter printError;
 	private static PrintWriter printOutput;
 	private static PrintWriter printAToCc;
-	private static final String INPUT_FILE_PATH = "data\\input.txt";
-	private static final String ERROR_FILE_PATH = "data\\error.txt";
-	private static final String OUTPUT_FILE_PATH = "data\\output.txt";
-	private static final String ATOCC_FILE_PATH = "data\\aToCc.txt";
+	private static final String INPUT_FILE_PATH = "data\\assignment1\\input.txt";
+	private static final String INPUT_ERROR_FILE_PATH = "data\\assignment1\\error.txt";
+	private static final String TOKEN_FILE_PATH = "data\\assignment1\\output.txt";
+	private static final String ATOCC_FILE_PATH = "data\\assignment1\\aToCc.txt";
 
 	
 }
