@@ -350,7 +350,7 @@ public class Tokenizer {
     				
     				receivedTokens = nextToken(entry.getKey(), entry.getValue());
                     for(Token token : receivedTokens) {
-                        System.out.println(token);
+                        //System.out.println(token);
                         if (token.type.toString().equalsIgnoreCase("id") || token.type.toString().equalsIgnoreCase("floatNum") || token.type.toString().equalsIgnoreCase("intNum")) {
                         	aToCc+=token.type.toString()+" ";
 						} else {

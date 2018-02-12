@@ -1,0 +1,9 @@
+E -> TX
+X -> +TX
+X -> EPSILON
+T -> FY
+Y -> *FY
+Y -> EPSILON
+F -> 0
+F -> 1
+F -> (E)

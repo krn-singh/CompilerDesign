@@ -5,6 +5,7 @@ package compiler.driver;
 
 import java.io.IOException;
 import compiler.lexical.Tokenizer;
+import compiler.syntactic.Parser;
 
 /**
  * The driver holds the main method too launch the compiler
@@ -20,5 +21,6 @@ public class Driver {
     public static void main(String[] args) throws IOException {
        	
     	Tokenizer.lexicalAnalyzer();
+    	Parser.parser();
     }
 }

@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -167,14 +168,111 @@ public class DataReadWrite {
 
 	}
 
+	public static TreeMap<String, String> readGrammar() throws IOException {
+		
+		readGrammar = new BufferedReader(new InputStreamReader(new FileInputStream(GRAMMAR_FILE_PATH)));
+		int productionNumber = 0;
+		String production = "";
+		TreeMap<String, String> grammar = new TreeMap<>();
+		
+		try {
+			
+			while ((production = readGrammar.readLine()) != null) {
+				
+				productionNumber++;
+				grammar.put(Integer.toString(productionNumber), production);
+			}
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+		} finally {
+			
+			readGrammar.close();
+		}
+		
+		return grammar;
+	}
+	
+	public static TreeMap<String, ArrayList<String>> readFirstSets() throws IOException {
+		
+		readFirstSets = new BufferedReader(new InputStreamReader(new FileInputStream(FIRSTSETS_FILE_PATH)));
+		String set = "";
+		TreeMap<String, ArrayList<String>> firstSets = new TreeMap<>();
+		
+		try {
+			
+			String key="";
+			String value="";
+			ArrayList<String> valueSet;
+			while ((set = readFirstSets.readLine()) != null) {
+				
+				key = set.split("->")[0].replaceAll("\\s", "");
+				value = set.split("->")[1].replaceAll("\\s", "");
+				valueSet = new ArrayList<>();
+				
+				for (int i = 0; i < value.split("\\|").length; i++) {
+					
+					valueSet.add(value.split("\\|")[i]);
+				}
+				
+				firstSets.put(key, valueSet);
+			}
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+		} finally {
+			
+			readFirstSets.close();
+		}
+		return firstSets;
+	}
+	
+	public static TreeMap<String, ArrayList<String>> readFollowSets() throws IOException {
+		
+		readFollowSets = new BufferedReader(new InputStreamReader(new FileInputStream(FOLLOWSETS_FILE_PATH)));
+		String set = "";
+		TreeMap<String, ArrayList<String>> followSets = new TreeMap<>();
+		
+		try {
+			
+			String key="";
+			String value="";
+			ArrayList<String> valueSet;
+			while ((set = readFollowSets.readLine()) != null) {
+				
+				key = set.split("->")[0].replaceAll("\\s", "");
+				value = set.split("->")[1].replaceAll("\\s", "");
+				valueSet = new ArrayList<>();
+				
+				for (int i = 0; i < value.split("\\|").length; i++) {
+					
+					valueSet.add(value.split("\\|")[i]);
+				}
+				
+				followSets.put(key, valueSet);
+			}
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+		} finally {
+			
+			readFirstSets.close();
+		}
+		return followSets;
+	}
+	
 	private static BufferedReader readInput;
 	private static PrintWriter printError;
 	private static PrintWriter printOutput;
 	private static PrintWriter printAToCc;
+	private static BufferedReader readGrammar;
+	private static BufferedReader readFirstSets;
+	private static BufferedReader readFollowSets;
 	private static final String INPUT_FILE_PATH = "data\\assignment1\\input.txt";
 	private static final String INPUT_ERROR_FILE_PATH = "data\\assignment1\\error.txt";
 	private static final String TOKEN_FILE_PATH = "data\\assignment1\\output.txt";
 	private static final String ATOCC_FILE_PATH = "data\\assignment1\\aToCc.txt";
-
-	
+	private static final String GRAMMAR_FILE_PATH = "data\\assignment2\\grammar.txt";
+	private static final String FIRSTSETS_FILE_PATH = "data\\assignment2\\firstSets.txt";
+	private static final String FOLLOWSETS_FILE_PATH = "data\\assignment2\\followSets.txt";
 }
