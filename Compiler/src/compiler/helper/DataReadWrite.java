@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 import java.util.TreeMap;
 
 import compiler.lexical.Token;
@@ -261,16 +262,22 @@ public class DataReadWrite {
 		return followSets;
 	}
 	
-	public static String readTokensInAToCcFormat() throws IOException {
+	public static Stack<String> readTokensInAToCcFormat() throws IOException {
 		
 		readAToCc = new BufferedReader(new InputStreamReader(new FileInputStream(ATOCC_FILE_PATH)));
 		String aToCc = "";
+		Stack<String> tokenStack = new Stack<>();
 		
 		try {
 			
 			if ((aToCc = readAToCc.readLine()) != null) {
 				
 				aToCc+="$";
+			}
+			
+			for (int i = aToCc.split("\\s").length-1; i >= 0; i--) {
+				
+				tokenStack.push(aToCc.split("\\s")[i]);
 			}
 			
 			
@@ -282,7 +289,7 @@ public class DataReadWrite {
 			readAToCc.close();
 		}
 		
-		return aToCc;
+		return tokenStack;
 	}
 	
 	private static BufferedReader readInput;
