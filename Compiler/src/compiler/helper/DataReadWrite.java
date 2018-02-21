@@ -261,6 +261,30 @@ public class DataReadWrite {
 		return followSets;
 	}
 	
+	public static String readTokensInAToCcFormat() throws IOException {
+		
+		readAToCc = new BufferedReader(new InputStreamReader(new FileInputStream(ATOCC_FILE_PATH)));
+		String aToCc = "";
+		
+		try {
+			
+			if ((aToCc = readAToCc.readLine()) != null) {
+				
+				aToCc+="$";
+			}
+			
+			
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+		} finally {
+			
+			readAToCc.close();
+		}
+		
+		return aToCc;
+	}
+	
 	private static BufferedReader readInput;
 	private static PrintWriter printError;
 	private static PrintWriter printOutput;
@@ -268,6 +292,7 @@ public class DataReadWrite {
 	private static BufferedReader readGrammar;
 	private static BufferedReader readFirstSets;
 	private static BufferedReader readFollowSets;
+	private static BufferedReader readAToCc;
 	private static final String INPUT_FILE_PATH = "data\\assignment1\\input.txt";
 	private static final String INPUT_ERROR_FILE_PATH = "data\\assignment1\\error.txt";
 	private static final String TOKEN_FILE_PATH = "data\\assignment1\\output.txt";

@@ -136,22 +136,20 @@ public class Parser {
 				// System.out.println(entry.getKey() + ") " + entry.getValue());
 				productionNumber = entry.getKey();
 				LHS = entry.getValue().split("->")[0].replaceAll("\\s", "");
-				RHS = entry.getValue().split("->")[1].replaceAll("\\s", "");
+				RHS = entry.getValue().split("->")[1].trim().split("\\s")[0];
 				if (RHS.equals("EPSILON")) {
 					
 					set = followSets.get(LHS);
 					for (String string : set) {
 						
 						parseTable[rowHeaders.get(LHS)][columnHeaders.get(string)] = productionNumber;
-						System.out.println(rowHeaders.get(LHS)+"   "+columnHeaders.get(string)+"   "+productionNumber);
 					}
 				} else {
 
-					set = firstSets.get(RHS.substring(0, 1));
+					set = firstSets.get(RHS);
 					for (String string : set) {
 						
 						parseTable[rowHeaders.get(LHS)][columnHeaders.get(string)] = productionNumber;
-						System.out.println(rowHeaders.get(LHS)+"   "+columnHeaders.get(string)+"   "+productionNumber);
 					}
 				}
 			}
@@ -168,10 +166,19 @@ public class Parser {
 			
 			for (int j = 0; j < parseTable[i].length; j++) {
 				
+				if (parseTable[i][j]==null) {
+					
+					parseTable[i][j] = "0";
+				}
 				System.out.print(parseTable[i][j]+" ");
 			}
 			System.out.println();
 		}
+	}
+	
+	public static void parsing() {
+		
+		
 	}
 
 	public static ArrayList<String> nonterminals = new ArrayList<>();

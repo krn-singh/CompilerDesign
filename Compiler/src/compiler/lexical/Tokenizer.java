@@ -363,8 +363,8 @@ public class Tokenizer {
 				}
 			}
     		
-    		System.out.println(aToCc.substring(0, aToCc.length()-1));
-    		aToCcFormat.add(aToCc.substring(0, aToCc.length()-1));
+    		System.out.println(aToCc.substring(0, aToCc.length()));
+    		aToCcFormat.add(aToCc.substring(0, aToCc.length()));
     		DataReadWrite.writeOutput(outputTokens);
     		DataReadWrite.writeAToCc(aToCcFormat);
     		DataReadWrite.writeErrors(errors);
