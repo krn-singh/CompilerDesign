@@ -1,8 +1,11 @@
 package compiler.helper;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -174,6 +177,8 @@ public class DataReadWrite {
 		readGrammar = new BufferedReader(new InputStreamReader(new FileInputStream(GRAMMAR_FILE_PATH)));
 		int productionNumber = 0;
 		String production = "";
+		String LHS = "";
+		String RHS = "";
 		TreeMap<String, String> grammar = new TreeMap<>();
 		
 		try {
@@ -182,6 +187,13 @@ public class DataReadWrite {
 				
 				productionNumber++;
 				grammar.put(Integer.toString(productionNumber), production);
+				LHS = production.split("->")[0].replaceAll("\\s","");
+				RHS = production.split("->")[1].replaceAll("\\s","");
+				
+				if (RHS.equals("EPSILON")) {
+					
+					productionWithEpsilon.add(LHS);
+				}
 			}
 		} catch (Exception e) {
 			
@@ -292,6 +304,32 @@ public class DataReadWrite {
 		return tokenStack;
 	}
 	
+	public static ArrayList<String> productionsWithEpsilon() {
+		
+		return productionWithEpsilon;
+	}
+	
+	public static void writeDerivation(List<String> derivation) throws IOException {
+		
+		writeDerivation = new BufferedWriter(new FileWriter(new File(DERIVATION_FILE_PATH)));
+		try {
+	
+			for (String string : derivation) {
+				
+				writeDerivation.write(string);
+				writeDerivation.newLine();
+			}
+			
+		} catch (Exception e) {
+	
+			e.printStackTrace();
+		} finally {
+	
+			writeDerivation.close();
+		}
+	
+	}
+	
 	private static BufferedReader readInput;
 	private static PrintWriter printError;
 	private static PrintWriter printOutput;
@@ -300,6 +338,9 @@ public class DataReadWrite {
 	private static BufferedReader readFirstSets;
 	private static BufferedReader readFollowSets;
 	private static BufferedReader readAToCc;
+	private static BufferedWriter writeDerivation;
+	private static ArrayList<String> productionWithEpsilon = new ArrayList<>();
+	private static ArrayList<String> productionWithEpsilonInFirstSet = new ArrayList<>();
 	private static final String INPUT_FILE_PATH = "data\\assignment1\\input.txt";
 	private static final String INPUT_ERROR_FILE_PATH = "data\\assignment1\\error.txt";
 	private static final String TOKEN_FILE_PATH = "data\\assignment1\\output.txt";
@@ -307,4 +348,5 @@ public class DataReadWrite {
 	private static final String GRAMMAR_FILE_PATH = "data\\assignment2\\grammar.txt";
 	private static final String FIRSTSETS_FILE_PATH = "data\\assignment2\\firstSets.txt";
 	private static final String FOLLOWSETS_FILE_PATH = "data\\assignment2\\followSets.txt";
+	private static final String DERIVATION_FILE_PATH = "data\\assignment2\\derivation.txt";
 }

@@ -6,6 +6,8 @@ package compiler.constants;
  * @version 1.0
  */
 public class CompilerEnum {
+	
+	public static String START_SYMBOL = "prog";
 
 	public static enum TokenType {
 		
