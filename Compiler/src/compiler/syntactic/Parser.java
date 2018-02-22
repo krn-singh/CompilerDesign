@@ -9,7 +9,10 @@ import java.util.Stack;
 import java.util.TreeMap;
 
 import compiler.constants.CompilerEnum;
+import compiler.constants.CompilerEnum.TokenType;
 import compiler.helper.DataReadWrite;
+import compiler.lexical.Token;
+import compiler.lexical.Tokenizer;
 
 public class Parser {
 
@@ -208,16 +211,21 @@ public class Parser {
 		try {
 			
 			Stack<String> stack = new Stack<>();
-			Stack<String> tokenStack = new Stack<>();
-			
-			tokenStack = DataReadWrite.readTokensInAToCcFormat();
 			stack.push("$");
 			stack.push(CompilerEnum.START_SYMBOL);
 			
+			//Stack<String> tokenStack = new Stack<>();			
+			//tokenStack = DataReadWrite.readTokensInAToCcFormat();
+			
+			tokens = Tokenizer.outputTokens;
+			tokens.add(new Token(TokenType.eof, "$", -1));
 			
 			String ruleLHS="";
 			String ruleRHS="";
-			String nextToken=tokenStack.peek();
+			//String nextToken=tokenStack.peek();
+			ArrayList<String> token = nextToken();
+			String nextToken = token.get(0);
+			int lineNumber = Integer.parseInt(token.get(1));
 			String top = "";
 			boolean error = false;
 			String derivation = "prog";
@@ -234,9 +242,11 @@ public class Parser {
 					if (top.equals(nextToken)) {
 						
 						stack.pop();
-						tokenStack.pop();
-						nextToken=tokenStack.peek();
-						
+						//tokenStack.pop();
+						//nextToken=tokenStack.peek();
+						token = nextToken();
+						nextToken = token.get(0);
+						lineNumber = Integer.parseInt(token.get(1));						
 					} else {
 						
 						System.out.println("inside terminal error");
@@ -294,6 +304,36 @@ public class Parser {
 		}
 		
 	}
+	
+	public static ArrayList<String> nextToken() {
+		
+		ArrayList<String> token = new ArrayList<>();
+		
+		if (tokens.get(tokenCounter).type == TokenType.id) {
+			
+			
+			token.add("id");
+			token.add(Integer.toString(tokens.get(tokenCounter).getLineNumber()));
+			tokenCounter++;
+		} else if(tokens.get(tokenCounter).type == TokenType.intNum) {
+			
+			token.add("intNum");
+			token.add(Integer.toString(tokens.get(tokenCounter).getLineNumber()));
+			tokenCounter++;
+		} else if(tokens.get(tokenCounter).type == TokenType.floatNum) {
+			
+			token.add("floatNum");
+			token.add(Integer.toString(tokens.get(tokenCounter).getLineNumber()));
+			tokenCounter++;
+		} else {
+
+			token.add(tokens.get(tokenCounter).getTokenValue());
+			token.add(Integer.toString(tokens.get(tokenCounter).getLineNumber()));
+			tokenCounter++;
+		}
+		
+		return token;
+	}
 
 	public static ArrayList<String> terminals = new ArrayList<>();
 	public static TreeMap<String, Integer> rowHeaders = new TreeMap<>();
@@ -302,5 +342,6 @@ public class Parser {
 	public static TreeMap<String, ArrayList<String>> followSets;
 	public static TreeMap<String, String> grammar;
 	public static String[][] parseTable;
-	public static ArrayList<String> tokenList = new ArrayList<>();
+	public static List<Token> tokens = new ArrayList<Token>();
+	public static int tokenCounter = 0;
 }
