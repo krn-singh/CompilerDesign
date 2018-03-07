@@ -225,7 +225,13 @@ public class DataReadWrite {
 				
 				for (int i = 0; i < value.split("\\|").length; i++) {
 					
-					valueSet.add(value.split("\\|")[i]);
+					if (value.split("\\|")[i].equals("EPSILON")) {
+						
+						productionWithEpsilonInFirstSet.add(key);
+					} else {
+
+						valueSet.add(value.split("\\|")[i]);
+					}				
 				}
 				
 				firstSets.put(key, valueSet);
@@ -309,6 +315,11 @@ public class DataReadWrite {
 		return productionWithEpsilon;
 	}
 	
+	public static ArrayList<String> productionsWithEpsilonInFirstSets() {
+		
+		return productionWithEpsilonInFirstSet;
+	}
+	
 	public static void writeDerivation(List<String> derivation) throws IOException {
 		
 		writeDerivation = new BufferedWriter(new FileWriter(new File(DERIVATION_FILE_PATH)));
@@ -330,6 +341,27 @@ public class DataReadWrite {
 	
 	}
 	
+	public static void writeSyntacticErrors(List<String> syntacticErrors) throws IOException {
+		
+		writeSyntacticErrors = new BufferedWriter(new FileWriter(new File(SYNTACTIC_ERROR_FILE_PATH)));
+		try {
+	
+			for (String string : syntacticErrors) {
+				
+				writeSyntacticErrors.write(string);
+				writeSyntacticErrors.newLine();
+			}
+			
+		} catch (Exception e) {
+	
+			e.printStackTrace();
+		} finally {
+	
+			writeSyntacticErrors.close();
+		}
+	
+	}
+	
 	private static BufferedReader readInput;
 	private static PrintWriter printError;
 	private static PrintWriter printOutput;
@@ -339,6 +371,7 @@ public class DataReadWrite {
 	private static BufferedReader readFollowSets;
 	private static BufferedReader readAToCc;
 	private static BufferedWriter writeDerivation;
+	private static BufferedWriter writeSyntacticErrors;
 	private static ArrayList<String> productionWithEpsilon = new ArrayList<>();
 	private static ArrayList<String> productionWithEpsilonInFirstSet = new ArrayList<>();
 	private static final String INPUT_FILE_PATH = "data\\assignment1\\input.txt";
@@ -349,4 +382,5 @@ public class DataReadWrite {
 	private static final String FIRSTSETS_FILE_PATH = "data\\assignment2\\firstSets.txt";
 	private static final String FOLLOWSETS_FILE_PATH = "data\\assignment2\\followSets.txt";
 	private static final String DERIVATION_FILE_PATH = "data\\assignment2\\derivation.txt";
+	private static final String SYNTACTIC_ERROR_FILE_PATH = "data\\assignment2\\syntacticErrors.txt";
 }

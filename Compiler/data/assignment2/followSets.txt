@@ -2,10 +2,10 @@ prog -> $
 classDeclList -> program|int|float|id
 funcDefList -> program
 classDecl -> class|program|int|float|id
-idInClassDeclOrNot -> {
+inheritedList -> {
 idInClassDeclList -> {
-varFuncInClass -> }
-varFuncInClassNew -> }
+memberList -> }
+memberListNew -> }
 funcInClass -> }
 funcInClassNew -> }
 funcDecl -> int|float|id|}
@@ -15,7 +15,9 @@ funcHeadIdNew -> (
 funcDef -> int|float|id|program
 funcBody -> ;
 varStatinFunc -> }
+varStatinFuncNew -> }
 varStat -> id|float|int|if|for|get|put|return|}
+varStatNew -> id|if|for|get|put|return|}
 varStatTail -> id|float|int|if|for|get|put|return|}
 assignStatTail -> ;
 typeNew -> id

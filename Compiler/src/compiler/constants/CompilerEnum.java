@@ -14,6 +14,11 @@ public class CompilerEnum {
 		id, intNum, floatNum, keyword, eq, neq, lt, gt, leq, geq, operator, puntuation, sr, eof
 	}
 	
+	public static enum NodeType {
+		
+		id, intNum, floatNum, keyword, eq, neq, lt, gt, leq, geq, operator, puntuation, sr, eof
+	}
+	
 	public static enum TokenValue {
 
 		AND("and"), NOT("not"), OR("or"), IF("if"), THEN("then"), ELSE("else"), FOR("for"), CLASS("class"), INT("int"), FLOAT("float"), GET("get"), PUT("put"), RETURN("return"), PROGRAM("program");

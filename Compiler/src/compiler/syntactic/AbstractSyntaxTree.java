@@ -1,5 +1,15 @@
 package compiler.syntactic;
 
-public class Ast {
+import compiler.constants.CompilerEnum.TokenType;
+
+public class AbstractSyntaxTree {
+
+	AstNode root;
+	AstNode current;
+
+	public void makeNode(String value, TokenType type) {
+
+		
+	}
 
 }

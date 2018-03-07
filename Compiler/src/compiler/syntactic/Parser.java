@@ -24,7 +24,7 @@ public class Parser {
 		followSets();
 		intializeTable();
 		buildTable();
-		//printTable();
+		printTable();
 		parsing();
 		
 	}
@@ -210,57 +210,60 @@ public class Parser {
 		
 		try {
 			
-			Stack<String> stack = new Stack<>();
 			stack.push("$");
 			stack.push(CompilerEnum.START_SYMBOL);
 			
 			//Stack<String> tokenStack = new Stack<>();			
 			//tokenStack = DataReadWrite.readTokensInAToCcFormat();
 			
-			tokens = Tokenizer.outputTokens;
-			tokens.add(new Token(TokenType.eof, "$", -1));
+			tokenList = Tokenizer.outputTokens;
+			tokenList.add(new Token(TokenType.eof, "$", -1));
 			
 			String ruleLHS="";
 			String ruleRHS="";
 			//String nextToken=tokenStack.peek();
-			ArrayList<String> token = nextToken();
+			/*ArrayList<String> token = nextToken();
 			String nextToken = token.get(0);
-			int lineNumber = Integer.parseInt(token.get(1));
+			int lineNumber = Integer.parseInt(token.get(1));*/
+			nextToken();
 			String top = "";
 			boolean error = false;
-			String derivation = "prog";
-			List<String> derivationList = new ArrayList<>();
+			String derivation = "prog";			
+			derivationList.add(derivation);
 			while (stack.peek() != "$") {
 				
 				top = stack.peek();
-				/*System.out.println(derivation);
-				System.out.println(top+" -- "+nextToken);
+				System.out.println(derivation);
+				System.out.println(top+" -- "+token);
 				System.out.println();
-				*/
+				
 				if (terminals.contains(top)) {
 					
-					if (top.equals(nextToken)) {
+					if (top.equals(token)) {
 						
 						stack.pop();
+						AbstractSyntaxTree tree = new AbstractSyntaxTree();
+						tree.makeNode(token, type);
 						//tokenStack.pop();
 						//nextToken=tokenStack.peek();
-						token = nextToken();
+						/*token = nextToken();
 						nextToken = token.get(0);
-						lineNumber = Integer.parseInt(token.get(1));						
+						lineNumber = Integer.parseInt(token.get(1));*/	
+						nextToken();
 					} else {
 						
-						System.out.println("inside terminal error");
+						
+						skipErrors(true);
 						error = true;
-						System.exit(0);
 					}
 				} else {
 					
-					if (parseTable[rowHeaders.get(top)][columnHeaders.get(nextToken)] != null) {
+					if (parseTable[rowHeaders.get(top)][columnHeaders.get(token)] != null) {
 						
 						
 						stack.pop();
-						ruleLHS = grammar.get(parseTable[rowHeaders.get(top)][columnHeaders.get(nextToken)]).split("->")[0].trim();
-						ruleRHS = grammar.get(parseTable[rowHeaders.get(top)][columnHeaders.get(nextToken)]).split("->")[1].trim();
+						ruleLHS = grammar.get(parseTable[rowHeaders.get(top)][columnHeaders.get(token)]).split("->")[0].trim();
+						ruleRHS = grammar.get(parseTable[rowHeaders.get(top)][columnHeaders.get(token)]).split("->")[1].trim();
 						
 						
 						if (!ruleRHS.equals("EPSILON")) {
@@ -282,66 +285,148 @@ public class Parser {
 						
 					} else {
 						
-						System.out.println("inside nonterminal error");
+						skipErrors(false);
 						error = true;
-						System.exit(0);
 					}
 				}			
 			}
 			
-			if (!nextToken.equals("$") || error == true) {
+			if (!token.equals("$") || error == true) {
 				
-				System.out.println(error+"  "+nextToken);
-				System.out.println("Fail");
+				derivationList.clear();
+				DataReadWrite.writeDerivation(derivationList);
+				DataReadWrite.writeSyntacticErrors(syntacticErrors);
+				System.out.println("Parsing cannot be completed successfully because of errors in the source file. Please check the error file.");
 			} else {
 				
 				DataReadWrite.writeDerivation(derivationList);
+				DataReadWrite.writeSyntacticErrors(syntacticErrors);
 				System.out.println("Pass");
 			}
 		} catch (Exception e) {
 
 			e.printStackTrace();
-		}
+		}		
+	}
+	
+	public static void nextToken() {
+		
+		//ArrayList<String> token = new ArrayList<>();
+		try {
+			if (tokenList.get(tokenCounter).type == TokenType.id) {
+				
+				token = "id";
+				lineNumber = tokenList.get(tokenCounter).getLineNumber();
+				/*token.add("id");
+				token.add(Integer.toString(tokens.get(tokenCounter).getLineNumber()));*/
+				tokenCounter++;
+			} else if(tokenList.get(tokenCounter).type == TokenType.intNum) {
+				
+				token = "intNum";
+				lineNumber = tokenList.get(tokenCounter).getLineNumber();
+				/*token.add("intNum");
+				token.add(Integer.toString(tokens.get(tokenCounter).getLineNumber()));*/
+				tokenCounter++;
+			} else if(tokenList.get(tokenCounter).type == TokenType.floatNum) {
+				
+				token = "floatNum";
+				lineNumber = tokenList.get(tokenCounter).getLineNumber();
+				/*token.add("floatNum");
+				token.add(Integer.toString(tokens.get(tokenCounter).getLineNumber()));*/
+				tokenCounter++;
+			} else {
+
+				token = tokenList.get(tokenCounter).getTokenValue();
+				lineNumber = tokenList.get(tokenCounter).getLineNumber();
+				/*token.add(tokens.get(tokenCounter).getTokenValue());
+				token.add(Integer.toString(tokens.get(tokenCounter).getLineNumber()));*/
+				tokenCounter++;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}	
 		
 	}
 	
-	public static ArrayList<String> nextToken() {
+	public static void skipErrors(boolean isTerminal) {
 		
-		ArrayList<String> token = new ArrayList<>();
-		
-		if (tokens.get(tokenCounter).type == TokenType.id) {
-			
-			
-			token.add("id");
-			token.add(Integer.toString(tokens.get(tokenCounter).getLineNumber()));
-			tokenCounter++;
-		} else if(tokens.get(tokenCounter).type == TokenType.intNum) {
-			
-			token.add("intNum");
-			token.add(Integer.toString(tokens.get(tokenCounter).getLineNumber()));
-			tokenCounter++;
-		} else if(tokens.get(tokenCounter).type == TokenType.floatNum) {
-			
-			token.add("floatNum");
-			token.add(Integer.toString(tokens.get(tokenCounter).getLineNumber()));
-			tokenCounter++;
-		} else {
+		try {
+			if (isTerminal) {
+				
+				syntacticErrors.add("Phase: Syntactic Analyzer. Error in line number "+lineNumber+". ("+token+") might be an unexpected token.");
+				if (tokenCounter<tokenList.size()) {
+					nextToken();
+				} else {
+					
+					derivationList.clear();
+					DataReadWrite.writeDerivation(derivationList);
+					DataReadWrite.writeSyntacticErrors(syntacticErrors);
+					System.out.println("Parsing cannot be completed successfully because of errors in the source file. Please check the error file.");
+					System.exit(0);
+				}				
+			} else {
 
-			token.add(tokens.get(tokenCounter).getTokenValue());
-			token.add(Integer.toString(tokens.get(tokenCounter).getLineNumber()));
-			tokenCounter++;
+				syntacticErrors.add("Phase: Syntactic Analyzer. Error in line number "+lineNumber+". ("+token+") might be an unexpected token.");
+				ArrayList<String> firstSet = firstSets.get(stack.peek());
+				ArrayList<String> followSet = followSets.get(stack.peek());
+				System.out.println(token);
+				if (followSet.contains(token) || token.equals("$")) {
+					
+					stack.pop();
+				} else {
+
+/*					while (!firstSet.contains(token) || (DataReadWrite.productionsWithEpsilon().contains(stack.peek()) && !followSet.contains(token))) {
+						
+						if (tokenCounter<tokenList.size()) {
+							nextToken();
+							System.out.println(token);
+						} else {
+							
+							System.out.println("as");
+							derivationList.clear();
+							DataReadWrite.writeDerivation(derivationList);
+							DataReadWrite.writeSyntacticErrors(syntacticErrors);
+							System.out.println("Parsing cannot be completed successfully because of errors in the source file. Please check the error file.");
+							System.exit(0);
+						}
+					}*/
+					
+					if (!firstSet.contains(token)) {
+						
+						if (tokenCounter<tokenList.size()) {
+							nextToken();
+							System.out.println(token);
+						} else {
+							
+							System.out.println("as");
+							derivationList.clear();
+							DataReadWrite.writeDerivation(derivationList);
+							DataReadWrite.writeSyntacticErrors(syntacticErrors);
+							System.out.println("Parsing cannot be completed successfully because of errors in the source file. Please check the error file.");
+							System.exit(0);
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		
-		return token;
 	}
 
-	public static ArrayList<String> terminals = new ArrayList<>();
-	public static TreeMap<String, Integer> rowHeaders = new TreeMap<>();
-	public static TreeMap<String, Integer> columnHeaders = new TreeMap<>();
-	public static TreeMap<String, ArrayList<String>> firstSets;
-	public static TreeMap<String, ArrayList<String>> followSets;
-	public static TreeMap<String, String> grammar;
-	public static String[][] parseTable;
-	public static List<Token> tokens = new ArrayList<Token>();
-	public static int tokenCounter = 0;
+	private static ArrayList<String> terminals = new ArrayList<>();
+	private static TreeMap<String, Integer> rowHeaders = new TreeMap<>();
+	private static TreeMap<String, Integer> columnHeaders = new TreeMap<>();
+	private static TreeMap<String, ArrayList<String>> firstSets;
+	private static TreeMap<String, ArrayList<String>> followSets;
+	private static TreeMap<String, String> grammar;
+	private static String[][] parseTable;
+	private static List<Token> tokenList = new ArrayList<Token>();
+	private static List<String> syntacticErrors = new ArrayList<String>();
+	private static List<String> derivationList = new ArrayList<>();
+	private static Stack<String> stack = new Stack<>();
+	private static int tokenCounter = 0;
+	private static String token = "";
+	private static int lineNumber = -1;
+	private static TokenType type;
 }
