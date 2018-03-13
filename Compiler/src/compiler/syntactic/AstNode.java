@@ -6,16 +6,19 @@ import compiler.constants.CompilerEnum.TokenType;
 
 public class AstNode {
 
-	AstNode leftMostChild;
-	AstNode leftMostSibling;
-	AstNode rightSibling;
-	AstNode parent;
-	
-	String value;
-	TokenType type;
-	
-	LinkedList<AstNode> siblings;
-	
+	private String data;
+	private TokenType type;
+	private String nodeType;
+	private LinkedList<AstNode> childrens = new LinkedList<>();
+
+	public String getData() {
+		return data;
+	}
+
+	public void setData(String data) {
+		this.data = data;
+	}
+
 	public TokenType getType() {
 		return type;
 	}
@@ -24,54 +27,19 @@ public class AstNode {
 		this.type = type;
 	}
 
-	public LinkedList<AstNode> getSiblings() {
-		return siblings;
+	public LinkedList<AstNode> getChildrens() {
+		return childrens;
 	}
 
-	public void setSiblings(AstNode sibling) {
-		siblings.add(sibling);
+	public void setChildrens(LinkedList<AstNode> childrens) {
+		this.childrens = childrens;
 	}
 
-	public AstNode getLeftMostChild() {
-		return leftMostChild;
+	public String getNodeType() {
+		return nodeType;
 	}
 
-	public void setLeftMostChild(AstNode leftMostChild) {
-		this.leftMostChild = leftMostChild;
+	public void setNodeType(String nodeType) {
+		this.nodeType = nodeType;
 	}
-
-	public AstNode getLeftMostSibling() {
-		return leftMostSibling;
-	}
-
-	public void setLeftMostSibling(AstNode leftMostSibling) {
-		this.leftMostSibling = leftMostSibling;
-	}
-
-	public AstNode getRightSibling() {
-		return rightSibling;
-	}
-
-	public void setRightSibling(AstNode rightSibling) {
-		this.rightSibling = rightSibling;
-	}
-
-	public AstNode getParent() {
-		return parent;
-	}
-
-	public void setParent(AstNode parent) {
-		this.parent = parent;
-	}
-
-	public String getValue() {
-		return value;
-	}
-
-	public void setValue(String value) {
-		this.value = value;
-	}
-	
-	
-	
 }

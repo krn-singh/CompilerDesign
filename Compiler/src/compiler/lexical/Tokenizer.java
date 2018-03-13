@@ -37,17 +37,29 @@ public class Tokenizer {
             	for (TokenValue value : TokenValue.values()) {
 					
             		if (input.substring(lexemeBegin, forward).equalsIgnoreCase(value.tokenValue())) {
-            			return new Token(TokenType.keyword, input.substring(lexemeBegin, forward), lineNumber);
+            			if (input.substring(lexemeBegin, forward).equalsIgnoreCase("int")) {
+            				return new Token(TokenType.Int, input.substring(lexemeBegin, forward), lineNumber);
+					} else if(input.substring(lexemeBegin, forward).equalsIgnoreCase("float")) {
+							return new Token(TokenType.Float, input.substring(lexemeBegin, forward), lineNumber);
+					} else {
+							return new Token(TokenType.keyword, input.substring(lexemeBegin, forward), lineNumber);
+					}	
 					}
 				}
                 return new Token(TokenType.id, input.substring(lexemeBegin, forward), lineNumber);                
             }
         }
         
-        for (TokenValue value : TokenValue.values()) {
+    	for (TokenValue value : TokenValue.values()) {
 			
     		if (input.substring(lexemeBegin, forward).equalsIgnoreCase(value.tokenValue())) {
-    			return new Token(TokenType.keyword, input.substring(lexemeBegin, forward), lineNumber);
+    			if (input.substring(lexemeBegin, forward).equalsIgnoreCase("int")) {
+    				return new Token(TokenType.Int, input.substring(lexemeBegin, forward), lineNumber);
+			} else if(input.substring(lexemeBegin, forward).equalsIgnoreCase("float")) {
+					return new Token(TokenType.Float, input.substring(lexemeBegin, forward), lineNumber);
+			} else {
+					return new Token(TokenType.keyword, input.substring(lexemeBegin, forward), lineNumber);
+			}	
 			}
 		}
 		return new Token(TokenType.id, input.substring(lexemeBegin, forward), lineNumber);

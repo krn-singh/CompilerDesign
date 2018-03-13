@@ -11,7 +11,7 @@ funcInClassNew -> }
 funcDecl -> int|float|id|}
 funcHead -> {
 funcHeadId -> (
-funcHeadIdNew -> (
+scopeSpec -> (
 funcDef -> int|float|id|program
 funcBody -> ;
 varStatinFunc -> }
@@ -51,7 +51,7 @@ idnestList -> =|)
 idnest -> .|=|)|*|/|and|+|-|or|]|eq|neq|lt|gt|leq|geq|;|,
 arraySize -> [|,|;|)
 type -> id
-fParams -> )
+fParamsList -> )
 fParamsTailList -> )
 aParams -> )
 aParamsTailList -> )

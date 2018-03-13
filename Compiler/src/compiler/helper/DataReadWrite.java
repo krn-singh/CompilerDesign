@@ -374,13 +374,13 @@ public class DataReadWrite {
 	private static BufferedWriter writeSyntacticErrors;
 	private static ArrayList<String> productionWithEpsilon = new ArrayList<>();
 	private static ArrayList<String> productionWithEpsilonInFirstSet = new ArrayList<>();
-	private static final String INPUT_FILE_PATH = "data\\assignment1\\input.txt";
-	private static final String INPUT_ERROR_FILE_PATH = "data\\assignment1\\error.txt";
-	private static final String TOKEN_FILE_PATH = "data\\assignment1\\output.txt";
-	private static final String ATOCC_FILE_PATH = "data\\assignment1\\aToCc.txt";
-	private static final String GRAMMAR_FILE_PATH = "data\\assignment2\\grammar.txt";
-	private static final String FIRSTSETS_FILE_PATH = "data\\assignment2\\firstSets.txt";
-	private static final String FOLLOWSETS_FILE_PATH = "data\\assignment2\\followSets.txt";
-	private static final String DERIVATION_FILE_PATH = "data\\assignment2\\derivation.txt";
-	private static final String SYNTACTIC_ERROR_FILE_PATH = "data\\assignment2\\syntacticErrors.txt";
+	private static final String INPUT_FILE_PATH = "data/assignment1/input.txt";
+	private static final String INPUT_ERROR_FILE_PATH = "data/assignment1/error.txt";
+	private static final String TOKEN_FILE_PATH = "data/assignment1/output.txt";
+	private static final String ATOCC_FILE_PATH = "data/assignment1/aToCc.txt";
+	private static final String GRAMMAR_FILE_PATH = "data/assignment2/grammar.txt";
+	private static final String FIRSTSETS_FILE_PATH = "data/assignment2/firstSets.txt";
+	private static final String FOLLOWSETS_FILE_PATH = "data/assignment2/followSets.txt";
+	private static final String DERIVATION_FILE_PATH = "data/assignment2/derivation.txt";
+	private static final String SYNTACTIC_ERROR_FILE_PATH = "data/assignment2/syntacticErrors.txt";
 }

@@ -47,7 +47,7 @@ memberList -> int|float|id|EPSILON
 funcInClass -> int|float|id|EPSILON
 funcDecl -> (
 funcHeadId -> id
-funcHeadIdNew -> sr|EPSILON
+scopeSpec -> sr|EPSILON
 funcBody -> {
 varStatinFunc -> id|float|int|if|for|get|put|return|EPSILON
 varStat -> float|int
@@ -78,7 +78,7 @@ idnestList -> .|EPSILON
 idnest -> .
 arraySize -> [
 type -> int|float|id
-fParams -> int|float|id|EPSILON
+fParamsList -> int|float|id|EPSILON
 fParamsTailList -> ,|EPSILON
 aParams -> intNum|floatNum|(|not|id|+|-|EPSILON
 aParamsTailList -> ,|EPSILON

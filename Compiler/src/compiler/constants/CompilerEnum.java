@@ -11,12 +11,7 @@ public class CompilerEnum {
 
 	public static enum TokenType {
 		
-		id, intNum, floatNum, keyword, eq, neq, lt, gt, leq, geq, operator, puntuation, sr, eof
-	}
-	
-	public static enum NodeType {
-		
-		id, intNum, floatNum, keyword, eq, neq, lt, gt, leq, geq, operator, puntuation, sr, eof
+		id, intNum, floatNum, keyword, eq, neq, lt, gt, leq, geq, operator, puntuation, sr, eof, Int, Float
 	}
 	
 	public static enum TokenValue {

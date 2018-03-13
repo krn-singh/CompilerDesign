@@ -3,6 +3,7 @@ package compiler.syntactic;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -16,37 +17,36 @@ import compiler.lexical.Tokenizer;
 
 public class Parser {
 
+
+	private static ArrayList<String> terminals = new ArrayList<>();
+	private static TreeMap<String, Integer> rowHeaders = new TreeMap<>();
+	private static TreeMap<String, Integer> columnHeaders = new TreeMap<>();
+	private static TreeMap<String, ArrayList<String>> firstSets;
+	private static TreeMap<String, ArrayList<String>> followSets;
+	private static TreeMap<String, String> grammar;
+	private static String[][] parseTable;
+	private static List<Token> tokenList = new ArrayList<Token>();
+	private static List<String> syntacticErrors = new ArrayList<String>();
+	private static List<String> derivationList = new ArrayList<>();
+	private static Stack<String> stack = new Stack<>();
+	private static Stack<String> ruleStack = new Stack<>();
+	private static Stack<AstNode> contextStack = new Stack<>();
+	private static int tokenCounter = 0;
+	private static String tokenName = "";
+	private static int lineNumber = -1;
+	private static String tokenValue = "";
+	private static TokenType type;
+	private static AstNode root;
+	
 	public static void parser() throws IOException {
 
 		grammar = DataReadWrite.readGrammar();
-		// grammar();
 		firstSets();
 		followSets();
 		intializeTable();
 		buildTable();
-		printTable();
+		//printTable();
 		parsing();
-		
-	}
-
-	public static void grammar() throws IOException {
-
-		try {
-
-			Iterator<Map.Entry<String, String>> entrySet = grammar.entrySet().iterator();
-			Map.Entry<String, String> entry;
-			while (entrySet.hasNext()) {
-
-				entry = entrySet.next();
-				System.out.println(entry.getKey() + ") " + entry.getValue());
-			}
-			
-			
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.out.println("No content in input file");
-		}
 	}
 
 	public static void firstSets() throws IOException {
@@ -145,7 +145,14 @@ public class Parser {
 				entry = entrySet.next();
 				productionNumber = entry.getKey();
 				LHS = entry.getValue().split("->")[0].replaceAll("\\s", "");
-				RHS = entry.getValue().split("->")[1].trim().split("\\s")[0];
+				
+				int index = 0;
+				while (entry.getValue().split("->")[1].trim().split("\\s")[index].startsWith("#")) {
+					index++;
+				}
+				
+				RHS = entry.getValue().split("->")[1].trim().split("\\s")[index];
+				
 				if (RHS.equals("EPSILON")) {
 					
 					set = followSets.get(LHS);
@@ -213,42 +220,29 @@ public class Parser {
 			stack.push("$");
 			stack.push(CompilerEnum.START_SYMBOL);
 			
-			//Stack<String> tokenStack = new Stack<>();			
-			//tokenStack = DataReadWrite.readTokensInAToCcFormat();
-			
 			tokenList = Tokenizer.outputTokens;
 			tokenList.add(new Token(TokenType.eof, "$", -1));
 			
 			String ruleLHS="";
 			String ruleRHS="";
-			//String nextToken=tokenStack.peek();
-			/*ArrayList<String> token = nextToken();
-			String nextToken = token.get(0);
-			int lineNumber = Integer.parseInt(token.get(1));*/
 			nextToken();
 			String top = "";
 			boolean error = false;
+			String rhsDerivation;
 			String derivation = "prog";			
 			derivationList.add(derivation);
 			while (stack.peek() != "$") {
 				
 				top = stack.peek();
-				System.out.println(derivation);
+				/*System.out.println(derivation);
 				System.out.println(top+" -- "+token);
-				System.out.println();
+				System.out.println();*/
 				
 				if (terminals.contains(top)) {
 					
-					if (top.equals(token)) {
+					if (top.equals(tokenName)) {
 						
 						stack.pop();
-						AbstractSyntaxTree tree = new AbstractSyntaxTree();
-						tree.makeNode(token, type);
-						//tokenStack.pop();
-						//nextToken=tokenStack.peek();
-						/*token = nextToken();
-						nextToken = token.get(0);
-						lineNumber = Integer.parseInt(token.get(1));*/	
 						nextToken();
 					} else {
 						
@@ -257,41 +251,156 @@ public class Parser {
 						error = true;
 					}
 				} else {
-					
-					if (parseTable[rowHeaders.get(top)][columnHeaders.get(token)] != null) {
-						
-						
-						stack.pop();
-						ruleLHS = grammar.get(parseTable[rowHeaders.get(top)][columnHeaders.get(token)]).split("->")[0].trim();
-						ruleRHS = grammar.get(parseTable[rowHeaders.get(top)][columnHeaders.get(token)]).split("->")[1].trim();
-						
-						
-						if (!ruleRHS.equals("EPSILON")) {
-							
-							for (int i = ruleRHS.split("\\s").length-1; i >= 0; i--) {
-								
-								stack.push(ruleRHS.split("\\s")[i]);
-							}
-							
-							derivation = derivation.replaceFirst(ruleLHS, ruleRHS);
-							derivation = derivation.replaceAll("\\s+", " ");
-							derivationList.add(derivation);
-						} else {
-							
-							derivation = derivation.replaceFirst(ruleLHS, "");
-							derivation = derivation.replaceAll("\\s+", " ");
-							derivationList.add(derivation);
+					System.out.println(top);
+					if (top.equals("#BEGIN_varDecl")) {
+						Stack<String> currentContext = new Stack<>();
+						for (int i = 0; i < 2; i++) {
+							currentContext.push(ruleStack.peek());
+							ruleStack.pop();
 						}
-						
+						ruleStack.push(top);
+						for (int j = 0; j < 2; j++) {
+							ruleStack.push(currentContext.peek());
+							currentContext.pop();
+						}
+						stack.pop();
+						currentContext = null;
+					} else if (top.equals("#BEGIN_funcDecl")) {
+						Stack<String> currentContext = new Stack<>();
+						for (int i = 0; i < 2; i++) {
+							currentContext.push(ruleStack.peek());
+							ruleStack.pop();
+						}
+						ruleStack.push(top);
+						for (int j = 0; j < 2; j++) {
+							ruleStack.push(currentContext.peek());
+							currentContext.pop();
+						}
+						stack.pop();
+						currentContext = null;
+					} else if (top.equals("#BEGIN_scopeSpec")) {
+						Stack<String> currentContext = new Stack<>();
+						currentContext.push(ruleStack.peek());
+						ruleStack.pop();
+						ruleStack.push(top);
+						ruleStack.push(currentContext.peek());
+						currentContext.pop();
+						stack.pop();
+						currentContext = null;
+					} else if (top.startsWith("#BEGIN_")) {
+						ruleStack.push(top);
+						stack.pop();
+					} else if (top.equals("#END_prog")) {
+						AstNode node = new AstNode();
+						node.setNodeType(top.substring(5));
+						int count = 0;
+						Stack<AstNode> currentContext = new Stack<>(); 
+						LinkedList<AstNode> childrens = new LinkedList<>();
+						while (!ruleStack.peek().equals("#BEGIN_"+top.substring(5))) {
+							count++;
+							ruleStack.pop();
+							currentContext.push(contextStack.peek());
+							contextStack.pop();
+						}
+						for (int i = 0; i < count; i++) {
+							childrens.add(currentContext.peek());
+							currentContext.pop();
+						}
+						node.setChildrens(childrens);
+						stack.pop();
+						contextStack.push(node);
+						root = node;
+						childrens = null;
+						ruleStack = null;
+						contextStack = null;
+						currentContext = null;
+					} else if (top.startsWith("#END_")) {
+						AstNode node = new AstNode();
+						node.setNodeType(top.substring(5));
+						int count = 0;
+						Stack<AstNode> currentContext = new Stack<>(); 
+						LinkedList<AstNode> childrens = new LinkedList<>();
+						while (!ruleStack.peek().equals("#BEGIN_"+top.substring(5))) {
+							count++;
+							ruleStack.pop();
+							currentContext.push(contextStack.peek());
+							contextStack.pop();
+						}
+						for (int i = 0; i < count; i++) {
+							childrens.add(currentContext.peek());
+							currentContext.pop();
+						}
+						node.setChildrens(childrens);
+						stack.pop();
+						contextStack.push(node);
+						childrens = null;
+						currentContext = null;
+					} else if (top.startsWith("#MAKE_NODE")) {
+						stack.pop();
+						AstNode node = new AstNode();
+						node.setData(tokenValue);
+						node.setType(type);
+						if ((type == TokenType.id && (tokenList.get(tokenCounter).type == TokenType.id)) || (type == TokenType.Int) || (type == TokenType.Float)) {
+							
+							node.setNodeType("typeNode");
+							node.setData(tokenValue);
+						} else if(type == TokenType.id) {
+							
+							node.setNodeType("idNode");
+							node.setData(tokenValue);
+						} else if((type == TokenType.intNum) || (type == TokenType.floatNum)) {
+							
+							node.setNodeType("numNode");
+							node.setData(tokenValue);
+							node.setType(type);
+						}
+						contextStack.add(node);
+						ruleStack.push(stack.peek());
 					} else {
 						
-						skipErrors(false);
-						error = true;
+						if (parseTable[rowHeaders.get(top)][columnHeaders.get(tokenName)] != null) {
+							
+							stack.pop();
+							ruleLHS = grammar.get(parseTable[rowHeaders.get(top)][columnHeaders.get(tokenName)]).split("->")[0].trim();
+							ruleRHS = grammar.get(parseTable[rowHeaders.get(top)][columnHeaders.get(tokenName)]).split("->")[1].trim();
+							
+							
+							if (!ruleRHS.equals("EPSILON")) {
+								
+								rhsDerivation = "";
+								for (int i = ruleRHS.split("\\s").length-1; i >= 0; i--) {
+									
+									stack.push(ruleRHS.split("\\s")[i]);	
+								}
+								
+								for (String string : ruleRHS.split("\\s")) {
+									
+									if (!string.startsWith("#")) {
+										
+										rhsDerivation+=string+" ";
+									}
+								}
+								
+								derivation = derivation.replaceFirst(ruleLHS, rhsDerivation);
+								derivation = derivation.replaceAll("\\s+", " ");
+								derivationList.add(derivation);
+							} else {
+								
+								derivation = derivation.replaceFirst(ruleLHS, "");
+								derivation = derivation.replaceAll("\\s+", " ");
+								derivationList.add(derivation);
+							}
+							
+						} else {
+							
+							skipErrors(false);
+							error = true;
+						}
 					}
 				}			
 			}
 			
-			if (!token.equals("$") || error == true) {
+			if (!tokenName.equals("$") || error == true) {
 				
 				derivationList.clear();
 				DataReadWrite.writeDerivation(derivationList);
@@ -315,31 +424,31 @@ public class Parser {
 		try {
 			if (tokenList.get(tokenCounter).type == TokenType.id) {
 				
-				token = "id";
+				tokenName = "id";
 				lineNumber = tokenList.get(tokenCounter).getLineNumber();
-				/*token.add("id");
-				token.add(Integer.toString(tokens.get(tokenCounter).getLineNumber()));*/
+				type = tokenList.get(tokenCounter).type;
+				tokenValue = tokenList.get(tokenCounter).tokenValue;
 				tokenCounter++;
 			} else if(tokenList.get(tokenCounter).type == TokenType.intNum) {
 				
-				token = "intNum";
+				tokenName = "intNum";
 				lineNumber = tokenList.get(tokenCounter).getLineNumber();
-				/*token.add("intNum");
-				token.add(Integer.toString(tokens.get(tokenCounter).getLineNumber()));*/
+				type = tokenList.get(tokenCounter).type;
+				tokenValue = tokenList.get(tokenCounter).tokenValue;
 				tokenCounter++;
 			} else if(tokenList.get(tokenCounter).type == TokenType.floatNum) {
 				
-				token = "floatNum";
+				tokenName = "floatNum";
 				lineNumber = tokenList.get(tokenCounter).getLineNumber();
-				/*token.add("floatNum");
-				token.add(Integer.toString(tokens.get(tokenCounter).getLineNumber()));*/
+				type = tokenList.get(tokenCounter).type;
+				tokenValue = tokenList.get(tokenCounter).tokenValue;
 				tokenCounter++;
 			} else {
 
-				token = tokenList.get(tokenCounter).getTokenValue();
+				tokenName = tokenList.get(tokenCounter).getTokenValue();
 				lineNumber = tokenList.get(tokenCounter).getLineNumber();
-				/*token.add(tokens.get(tokenCounter).getTokenValue());
-				token.add(Integer.toString(tokens.get(tokenCounter).getLineNumber()));*/
+				type = tokenList.get(tokenCounter).type;
+				tokenValue = tokenList.get(tokenCounter).tokenValue;
 				tokenCounter++;
 			}
 		} catch (Exception e) {
@@ -353,7 +462,7 @@ public class Parser {
 		try {
 			if (isTerminal) {
 				
-				syntacticErrors.add("Phase: Syntactic Analyzer. Error in line number "+lineNumber+". ("+token+") might be an unexpected token.");
+				syntacticErrors.add("Phase: Syntactic Analyzer. Error in line number "+lineNumber+". ("+tokenName+") might be an unexpected token.");
 				if (tokenCounter<tokenList.size()) {
 					nextToken();
 				} else {
@@ -366,11 +475,11 @@ public class Parser {
 				}				
 			} else {
 
-				syntacticErrors.add("Phase: Syntactic Analyzer. Error in line number "+lineNumber+". ("+token+") might be an unexpected token.");
+				syntacticErrors.add("Phase: Syntactic Analyzer. Error in line number "+lineNumber+". ("+tokenName+") might be an unexpected token.");
 				ArrayList<String> firstSet = firstSets.get(stack.peek());
 				ArrayList<String> followSet = followSets.get(stack.peek());
-				System.out.println(token);
-				if (followSet.contains(token) || token.equals("$")) {
+				System.out.println(tokenName);
+				if (followSet.contains(tokenName) || tokenName.equals("$")) {
 					
 					stack.pop();
 				} else {
@@ -391,14 +500,13 @@ public class Parser {
 						}
 					}*/
 					
-					if (!firstSet.contains(token)) {
+					if (!firstSet.contains(tokenName)) {
 						
 						if (tokenCounter<tokenList.size()) {
 							nextToken();
-							System.out.println(token);
+							System.out.println(tokenName);
 						} else {
 							
-							System.out.println("as");
 							derivationList.clear();
 							DataReadWrite.writeDerivation(derivationList);
 							DataReadWrite.writeSyntacticErrors(syntacticErrors);
@@ -410,23 +518,14 @@ public class Parser {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
-		
+		}		
 	}
 
-	private static ArrayList<String> terminals = new ArrayList<>();
-	private static TreeMap<String, Integer> rowHeaders = new TreeMap<>();
-	private static TreeMap<String, Integer> columnHeaders = new TreeMap<>();
-	private static TreeMap<String, ArrayList<String>> firstSets;
-	private static TreeMap<String, ArrayList<String>> followSets;
-	private static TreeMap<String, String> grammar;
-	private static String[][] parseTable;
-	private static List<Token> tokenList = new ArrayList<Token>();
-	private static List<String> syntacticErrors = new ArrayList<String>();
-	private static List<String> derivationList = new ArrayList<>();
-	private static Stack<String> stack = new Stack<>();
-	private static int tokenCounter = 0;
-	private static String token = "";
-	private static int lineNumber = -1;
-	private static TokenType type;
+	public static AstNode getRoot() {
+		return root;
+	}
+
+	public static void setRoot(AstNode root) {
+		Parser.root = root;
+	}
 }

@@ -1,41 +1,41 @@
-prog 				-> classDeclList funcDefList program funcBody ;
+prog 			-> #BEGIN_prog #BEGIN_classDeclList classDeclList #END_classDeclList #BEGIN_funcDefList funcDefList #END_funcDefList program #BEGIN_funcBody funcBody #END_funcBody ; #END_prog
 classDeclList		-> classDecl classDeclList
-classDeclList		-> EPSILON			   
+classDeclList		-> EPSILON
 funcDefList 		-> funcDef funcDefList
 funcDefList 		-> EPSILON
-classDecl 			-> class id inheritedList { memberList } ;
-inheritedList		-> : id idInClassDeclList
+classDecl 		-> #BEGIN_classDecl class #MAKE_NODE id #BEGIN_inheritedList inheritedList #END_inheritedList { #BEGIN_memberList memberList #END_memberList } ; #END_classDecl
+inheritedList		-> : #MAKE_NODE id idInClassDeclList
 inheritedList		-> EPSILON
-idInClassDeclList	-> , id idInClassDeclList
+idInClassDeclList	-> , #MAKE_NODE id idInClassDeclList
 idInClassDeclList	-> EPSILON
-memberList			-> type id memberListNew
-memberList			-> EPSILON
-memberListNew		-> varDecl memberList
-memberListNew		-> funcDecl funcInClass
-funcInClass			-> type id funcInClassNew
+memberList		-> type #MAKE_NODE id memberListNew
+memberList		-> EPSILON
+memberListNew		-> #BEGIN_varDecl varDecl #END_varDecl memberList
+memberListNew		-> #BEGIN_funcDecl funcDecl #END_funcDecl funcInClass
+funcInClass			-> type #MAKE_NODE id funcInClassNew
 funcInClass			-> EPSILON
-funcInClassNew		-> funcDecl funcInClass
-funcDecl 			-> ( fParams ) ;
-funcHead 			-> type funcHeadId ( fParams )
-funcHeadId 			-> id funcHeadIdNew
-funcHeadIdNew 		-> sr id
-funcHeadIdNew 		-> EPSILON
-funcDef 			-> funcHead funcBody ;
-funcBody 			-> { varStatinFunc }
+funcInClassNew		-> #BEGIN_funcDecl funcDecl #END_funcDecl funcInClass
+funcDecl 			-> #BEGIN_fParamsList ( fParamsList ) ; #END_fParamsList
+funcHead 			-> type funcHeadId #BEGIN_fParamsList ( fParamsList ) #END_fParamsList
+funcHeadId 			-> #MAKE_NODE id scopeSpec
+scopeSpec 		-> #BEGIN_scopeSpec sr #END_scopeSpec #MAKE_NODE id
+scopeSpec 		-> EPSILON
+funcDef 			-> #BEGIN_funcDef funcHead funcBody ; #END_funcDef
+funcBody 			-> #BEGIN_funcBody { varStatinFunc } #END_funcBody
 varStatinFunc		-> varStat varStatinFunc
 varStatinFunc		-> varStatNew varStatinFuncNew
 varStatinFunc		-> EPSILON
 varStatinFuncNew	-> varStatNew varStatinFuncNew
 varStatinFuncNew	-> EPSILON
-varStat				-> typeNew id varDecl
-varStatNew			-> id varStatTail
+varStat				-> typeNew #MAKE_NODE id #BEGIN_varDecl varDecl #END_varDecl
+varStatNew			-> #MAKE_NODE id varStatTail
 varStatNew			-> statementOther
-varStatTail			-> id varDecl
+varStatTail			-> #MAKE_NODE id #BEGIN_varDecl varDecl #END_varDecl
 varStatTail			-> indiceList idnestList assignStatTail ;
 varStatTail			-> ( aParams ) idnestList assignStatTail ;
 assignStatTail		-> assignOp expr
-typeNew				-> float
-typeNew				-> int
+typeNew				-> #MAKE_NODE float
+typeNew				-> #MAKE_NODE int
 statementOther		-> if ( expr ) then statBlock else statBlock ;
 statementOther		-> for ( type id assignOp expr ; relExpr ; assignStat ) statBlock ;
 statementOther		-> get ( variable ) ;
@@ -43,7 +43,7 @@ statementOther		-> put ( expr ) ;
 statementOther		-> return ( expr ) ;
 statementList 		-> statement statementList
 statementList 		-> EPSILON
-varDecl 			-> arraySizeList ;
+varDecl 			-> #BEGIN_arraySizeList arraySizeList ; #END_arraySizeList
 arraySizeList		-> arraySize arraySizeList
 arraySizeList		-> EPSILON
 statement 			-> assignStat ;
@@ -63,7 +63,7 @@ relExpr 			-> arithExpr relOp arithExpr
 arithExpr 			-> term arithExprNew
 arithExprNew 		-> addOp term arithExprNew
 arithExprNew 		-> EPSILON
-sign 				-> + 
+sign 				-> +
 sign 				-> -
 term 				-> factor termNew
 termNew 			-> multOp factor termNew
@@ -93,21 +93,19 @@ indice 				-> [ arithExpr ]
 idnestList			-> idnest idnestList
 idnestList			-> EPSILON
 idnest 				-> . id indiceList
-arraySize 			-> [ intNum ]
-type 				-> int
-type 				-> float
-type 				-> id
-arraySizeList		-> arraySize arraySizeList
-arraySizeList		-> EPSILON
-fParams 			-> type id arraySizeList fParamsTailList
-fParams 			-> EPSILON
-fParamsTailList		-> fParamsTail fParamsTailList
+arraySize 			-> [ #MAKE_NODE intNum ]
+type 				-> #MAKE_NODE int
+type 				-> #MAKE_NODE float
+type 				-> #MAKE_NODE id
+fParamsList 			->  #BEGIN_fParam type #MAKE_NODE id #BEGIN_arraySizeList arraySizeList #END_arraySizeList #END_fParam fParamsTailList
+fParamsList 			-> EPSILON
+fParamsTailList		-> #BEGIN_fParam fParamsTail #END_fParam fParamsTailList
 fParamsTailList		-> EPSILON
 aParams 			-> expr aParamsTailList
 aParams 			-> EPSILON
 aParamsTailList		-> aParamsTail aParamsTailList
 aParamsTailList		-> EPSILON
-fParamsTail 		-> , type id arraySizeList
+fParamsTail 		-> , type #MAKE_NODE id #BEGIN_arraySizeList arraySizeList #END_arraySizeList
 aParamsTail 		-> , expr
 assignOp 			-> =
 relOp 				-> eq
