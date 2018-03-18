@@ -29,4 +29,10 @@ public class CompilerEnum {
 			return value;
 		}
 	}
+	
+	public static enum SymTableEntryCategory {
+		
+		Class, Function, Parameter, Variable
+	}
+	
 }

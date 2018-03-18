@@ -6,10 +6,11 @@ import compiler.constants.CompilerEnum.TokenType;
 
 public class AstNode {
 
-	private String data;
+	private String data = "";
 	private TokenType type;
-	private String nodeType;
+	private String nodeType = "";
 	private LinkedList<AstNode> childrens = new LinkedList<>();
+	public int nodeLevel = 0;
 
 	public String getData() {
 		return data;
@@ -42,4 +43,50 @@ public class AstNode {
 	public void setNodeType(String nodeType) {
 		this.nodeType = nodeType;
 	}
+	
+	public void astTraversel(AstNode root) {
+		
+		if(root.getChildrens().size() == 0) {
+			for (int i = 0; i < nodeLevel; i++ )
+	    		System.out.print("  ");
+			
+			String toprint = String.format("%-35s" , "Node."+root.getNodeType()); 
+			for (int i = 0; i < nodeLevel; i++ )
+	    			toprint = toprint.substring(0, toprint.length() - 2);
+			toprint += String.format("%-20s" , (root.getData() == null ? " | " : " | " + root.getData()));    	
+			toprint += String.format("%-20s" , (root.getType() == null ? " | " : " | " + root.getType()));
+			
+			System.out.println(toprint);
+			return;
+		}
+		
+		for (int i = 0; i < nodeLevel; i++ )
+    		System.out.print("  ");
+		
+		String toprint = String.format("%-35s" , "Node."+root.getNodeType()); 
+		for (int i = 0; i < nodeLevel; i++ )
+    			toprint = toprint.substring(0, toprint.length() - 2);
+		toprint += String.format("%-20s" , (root.getData() == null ? " | " : " | " + root.getData()));    	
+		toprint += String.format("%-20s" , (root.getType() == null ? " | " : " | " + root.getType()));
+		
+		System.out.println(toprint);
+		
+		nodeLevel++;
+		
+		LinkedList<AstNode> childrens = root.getChildrens();
+		for (AstNode child : childrens) { 
+			astTraversel(child);
+		}
+		
+		nodeLevel--;
+		
+	}
+	
+    public void print(AstNode root){
+    	System.out.println("=======================================================================");
+    	System.out.println("Node type                           | data              | type         ");
+    	System.out.println("=======================================================================");
+    	astTraversel(root);
+    	System.out.println("=======================================================================");
+    }
 }

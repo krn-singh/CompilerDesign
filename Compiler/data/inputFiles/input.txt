@@ -1,0 +1,17 @@
+
+
+class Utility {
+ int var1;
+ float var1;
+ int findMax(int array[100]);
+ };
+
+int Utility::findMax(int array[100]){
+ int var1;
+ };
+
+program {
+ int sample[100];
+ int idx;
+ int maxValue;
+ };

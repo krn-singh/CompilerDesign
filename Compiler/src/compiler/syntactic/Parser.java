@@ -12,6 +12,7 @@ import java.util.TreeMap;
 import compiler.constants.CompilerEnum;
 import compiler.constants.CompilerEnum.TokenType;
 import compiler.helper.DataReadWrite;
+import compiler.helper.Util;
 import compiler.lexical.Token;
 import compiler.lexical.Tokenizer;
 
@@ -26,7 +27,6 @@ public class Parser {
 	private static TreeMap<String, String> grammar;
 	private static String[][] parseTable;
 	private static List<Token> tokenList = new ArrayList<Token>();
-	private static List<String> syntacticErrors = new ArrayList<String>();
 	private static List<String> derivationList = new ArrayList<>();
 	private static Stack<String> stack = new Stack<>();
 	private static Stack<String> ruleStack = new Stack<>();
@@ -37,16 +37,28 @@ public class Parser {
 	private static String tokenValue = "";
 	private static TokenType type;
 	private static AstNode root;
+	public static Map<String, ArrayList<String>> hashMap;
+	
+	public static Map<String, ArrayList<String>> getHashMap() {
+		return hashMap;
+	}
 	
 	public static void parser() throws IOException {
 
+		System.out.println("Reading grammar and generating the first and follow sets......");
 		grammar = DataReadWrite.readGrammar();
+		hashMap = Tokenizer.getHashMap();
 		firstSets();
 		followSets();
+		System.out.println("Building the parse table");
 		intializeTable();
 		buildTable();
 		//printTable();
+		System.out.println("Parsing in progress...... Building the Abstract Syntax tree");
+		System.out.println();
 		parsing();
+		new AstNode().print(Parser.getRoot());
+		System.out.println();
 	}
 
 	public static void firstSets() throws IOException {
@@ -234,9 +246,6 @@ public class Parser {
 			while (stack.peek() != "$") {
 				
 				top = stack.peek();
-				/*System.out.println(derivation);
-				System.out.println(top+" -- "+token);
-				System.out.println();*/
 				
 				if (terminals.contains(top)) {
 					
@@ -251,7 +260,7 @@ public class Parser {
 						error = true;
 					}
 				} else {
-					System.out.println(top);
+					
 					if (top.equals("#BEGIN_varDecl")) {
 						Stack<String> currentContext = new Stack<>();
 						for (int i = 0; i < 2; i++) {
@@ -338,8 +347,6 @@ public class Parser {
 					} else if (top.startsWith("#MAKE_NODE")) {
 						stack.pop();
 						AstNode node = new AstNode();
-						node.setData(tokenValue);
-						node.setType(type);
 						if ((type == TokenType.id && (tokenList.get(tokenCounter).type == TokenType.id)) || (type == TokenType.Int) || (type == TokenType.Float)) {
 							
 							node.setNodeType("typeNode");
@@ -404,13 +411,17 @@ public class Parser {
 				
 				derivationList.clear();
 				DataReadWrite.writeDerivation(derivationList);
-				DataReadWrite.writeSyntacticErrors(syntacticErrors);
-				System.out.println("Parsing cannot be completed successfully because of errors in the source file. Please check the error file.");
+				System.out.println("Parsing cannot be completed successfully because of errors in the source file. Please check the error file and rectify the given input.");
+				System.out.println();
+				System.out.println("************* Printing Tree (Incomplete due to unsuccessful parsing) ************");
+				System.out.println();
 			} else {
 				
 				DataReadWrite.writeDerivation(derivationList);
-				DataReadWrite.writeSyntacticErrors(syntacticErrors);
-				System.out.println("Pass");
+				System.out.println("Parsing Successful");
+				System.out.println();
+				System.out.println("************* Printing Tree ************");
+				System.out.println();
 			}
 		} catch (Exception e) {
 
@@ -420,7 +431,6 @@ public class Parser {
 	
 	public static void nextToken() {
 		
-		//ArrayList<String> token = new ArrayList<>();
 		try {
 			if (tokenList.get(tokenCounter).type == TokenType.id) {
 				
@@ -460,23 +470,28 @@ public class Parser {
 	public static void skipErrors(boolean isTerminal) {
 		
 		try {
+			Util util = new Util();
+			
 			if (isTerminal) {
-				
-				syntacticErrors.add("Phase: Syntactic Analyzer. Error in line number "+lineNumber+". ("+tokenName+") might be an unexpected token.");
+				util.setHashMap(hashMap);
+                hashMap = util.reportError(Integer.toString(lineNumber), "Error ("+tokenName+") reported during Syntactic phase in line ");
+                	
 				if (tokenCounter<tokenList.size()) {
 					nextToken();
 				} else {
-					
-					derivationList.clear();
+					stack.pop();
+					/*derivationList.clear();
 					DataReadWrite.writeDerivation(derivationList);
 					DataReadWrite.writeSyntacticErrors(syntacticErrors);
 					System.out.println("Parsing cannot be completed successfully because of errors in the source file. Please check the error file.");
-					System.exit(0);
+					System.exit(0);*/
 				}				
 			} else {
 
-				syntacticErrors.add("Phase: Syntactic Analyzer. Error in line number "+lineNumber+". ("+tokenName+") might be an unexpected token.");
-				ArrayList<String> firstSet = firstSets.get(stack.peek());
+				util.setHashMap(hashMap);
+                hashMap = util.reportError(Integer.toString(lineNumber), "Error ("+tokenName+") reported during Syntactic phase in line ");
+
+                ArrayList<String> firstSet = firstSets.get(stack.peek());
 				ArrayList<String> followSet = followSets.get(stack.peek());
 				System.out.println(tokenName);
 				if (followSet.contains(tokenName) || tokenName.equals("$")) {
@@ -507,12 +522,14 @@ public class Parser {
 							System.out.println(tokenName);
 						} else {
 							
-							derivationList.clear();
+							/*derivationList.clear();
 							DataReadWrite.writeDerivation(derivationList);
 							DataReadWrite.writeSyntacticErrors(syntacticErrors);
 							System.out.println("Parsing cannot be completed successfully because of errors in the source file. Please check the error file.");
-							System.exit(0);
+							System.exit(0);*/
 						}
+					} else {
+						stack.pop();
 					}
 				}
 			}

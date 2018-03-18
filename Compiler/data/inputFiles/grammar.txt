@@ -1,4 +1,4 @@
-prog 			-> #BEGIN_prog #BEGIN_classDeclList classDeclList #END_classDeclList #BEGIN_funcDefList funcDefList #END_funcDefList program #BEGIN_funcBody funcBody #END_funcBody ; #END_prog
+prog 			-> #BEGIN_prog #BEGIN_classDeclList classDeclList #END_classDeclList #BEGIN_funcDefList funcDefList #END_funcDefList program #BEGIN_mainBody funcBody #END_mainBody ; #END_prog
 classDeclList		-> classDecl classDeclList
 classDeclList		-> EPSILON
 funcDefList 		-> funcDef funcDefList
@@ -20,8 +20,8 @@ funcHead 			-> type funcHeadId #BEGIN_fParamsList ( fParamsList ) #END_fParamsLi
 funcHeadId 			-> #MAKE_NODE id scopeSpec
 scopeSpec 		-> #BEGIN_scopeSpec sr #END_scopeSpec #MAKE_NODE id
 scopeSpec 		-> EPSILON
-funcDef 			-> #BEGIN_funcDef funcHead funcBody ; #END_funcDef
-funcBody 			-> #BEGIN_funcBody { varStatinFunc } #END_funcBody
+funcDef 			-> #BEGIN_funcDef funcHead #BEGIN_funcBody funcBody #END_funcBody ; #END_funcDef
+funcBody 			-> { varStatinFunc }
 varStatinFunc		-> varStat varStatinFunc
 varStatinFunc		-> varStatNew varStatinFuncNew
 varStatinFunc		-> EPSILON

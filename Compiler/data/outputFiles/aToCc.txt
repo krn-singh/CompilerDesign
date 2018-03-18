@@ -1,0 +1,1 @@
+class id { int id ; float id ; int id ( int id [ intNum ] ) ; } ; int id sr id ( int id [ intNum ] ) { int id ; } ; program { int id [ intNum ] ; int id ; int id ; } ; 

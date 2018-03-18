@@ -1,1 +1,0 @@
-class id : id , id { int id ; } ; program { int id ; } ; 

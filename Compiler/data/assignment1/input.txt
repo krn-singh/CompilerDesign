@@ -1,8 +1,0 @@
-
-class Utility : InheritedUtility, gfjh {
- int x;
-}; 
- 
-program {
- int idx;
- };

@@ -10,6 +10,7 @@ import java.util.TreeMap;
 import compiler.constants.CompilerEnum.TokenType;
 import compiler.constants.CompilerEnum.TokenValue;
 import compiler.helper.DataReadWrite;
+import compiler.helper.Util;
 
 /**
  * Generating tokens from the source code
@@ -18,6 +19,16 @@ import compiler.helper.DataReadWrite;
  */
 public class Tokenizer {
 	
+
+	public static Token token;
+	public static List<Token> outputTokens = new ArrayList<Token>();
+	public static List<String> aToCcFormat = new ArrayList<String>();
+	public static Map<String, ArrayList<String>> hashMap;
+	
+	public static Map<String, ArrayList<String>> getHashMap() {
+		return hashMap;
+	}
+
 	/**
 	 * finds the alphanumeric(only identifiers or reserved keywords but not literals, punctuation or other operators) token in the given input 
 	 * @param input Input String
@@ -184,6 +195,7 @@ public class Tokenizer {
      */
     public static List<Token> nextToken(Integer lineNumber, String input) {
         List<Token> tokens = new ArrayList<Token>();
+        Util util = new Util();
         
         for(int currentChar = 0; currentChar < input.length(); ) {
         	
@@ -329,8 +341,8 @@ public class Tokenizer {
                     currentChar += token.getTokenValue().length();
                     tokens.add(token);
                 } else {
-                	
-                	errors.add("<ErrorString: '"+Character.toString(input.charAt(currentChar))+"', Line Number: "+lineNumber+">");
+                	util.setHashMap(hashMap);
+                hashMap = util.reportError(Integer.toString(lineNumber), "Error ("+Character.toString(input.charAt(currentChar))+") reported during lexical phase in line ");
                 	currentChar++;
                 }
                 break;
@@ -345,7 +357,10 @@ public class Tokenizer {
      */
     public static void lexicalAnalyzer() throws IOException {
     	
+    	System.out.println("Fetching input......");
+    	System.out.println("Recording tokens......");
     	TreeMap<Integer, String> inputList = DataReadWrite.readInput();
+    	hashMap = new Util().getHashMap();
     	List<Token> receivedTokens=null;
     	int tokenCount=0;
     	
@@ -375,21 +390,20 @@ public class Tokenizer {
 				}
 			}
     		
+    		System.out.println("Token Stream: ");
     		System.out.println(aToCc.substring(0, aToCc.length()));
     		aToCcFormat.add(aToCc.substring(0, aToCc.length()));
     		DataReadWrite.writeOutput(outputTokens);
     		DataReadWrite.writeAToCc(aToCcFormat);
-    		DataReadWrite.writeErrors(errors);
     		
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println("No content in input file");
 		}
-        System.out.println("Total tokens: "+tokenCount);
+        System.out.println("Total valid tokens: "+tokenCount);
+        System.out.println();
+        System.out.println("End of Lexical Phase....... Initiating Syntactic Analyzer");
+        System.out.println();
     }    
 
-	public static Token token;
-	public static List<String> errors = new ArrayList<String>();
-	public static List<Token> outputTokens = new ArrayList<Token>();
-	public static List<String> aToCcFormat = new ArrayList<String>();
 }
