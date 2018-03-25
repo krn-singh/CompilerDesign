@@ -83,6 +83,19 @@ public class SymTable {
 		return null;
 	}
 	
+	public SymTableEntry searchRecord(SymTable table, String name) {
+		
+		ArrayList<SymTableEntry> current = table.getEntries();
+		
+		for (int i = 0; i < current.size(); i++) {
+			if (current.get(i).getName().equals(name)) {
+				return current.get(i);
+			}
+		}
+		
+		return null;						
+	}
+	
 	public SymTableEntry searchRecord(SymTable table, String name, String type) {
 		
 		ArrayList<SymTableEntry> current = table.getEntries();
@@ -108,5 +121,49 @@ public class SymTable {
 		
 		return null;						
 	}
+	
+	public boolean checkDeclInSameScope(SymTable table, String name) {
+		
+		if (searchRecord(table, name) == null) {
+			return false;
+		} else {
+			return true;
+		}
+	}
 
+	public boolean checkDeclInParentScope(SymTable table, LinkedList<SymTable> tables, String name) {
+		
+		this.tables = tables;
+		SymTable current = findTable(table.getParent().getTableName());
+
+		while (!current.getTableName().equals("global")) {
+			
+			if (searchRecord(current, name) == null) {
+				if (current.getParent().getTableName().equals("global")) {
+					return false;
+				} else {
+					current = findTable(current.getParent().getTableName());
+				}
+			} else {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	public boolean checkDeclInSuperClass(SymTable global, SymTable table, LinkedList<SymTable> tables, String name) {
+		
+		this.tables = tables;
+		SymTableEntry entry = searchRecord(global, table.getTableName());
+		if (entry == null || entry.getInheritedClassList().size() == 0) {
+			return false;
+		}
+		for (SymTable symTable : entry.getInheritedClassList()) {
+			if (searchRecord(symTable, name) != null) {
+				return true;
+			}
+		}
+		return false;
+	}
 }

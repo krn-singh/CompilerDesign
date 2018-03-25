@@ -166,26 +166,31 @@ public class DataReadWrite {
 	
 	/**
 	 * Prints the error messages in the error.txt file
-	 * @param errors List of errors encountered in the given input
+	 * @param map errors encountered in the given input
 	 * @throws IOException
 	 */
-	public static void writeErrors(Map<String, ArrayList<String>> hashMap) throws IOException {
+	public static void writeErrors(Map<Integer, ArrayList<String>> map) throws IOException {
 
 		write = new BufferedWriter(new FileWriter(new File(ERROR_FILE_PATH)));
 		try {
 
-			String lineNumber;
-			Iterator<Map.Entry<String, ArrayList<String>>> entrySet = hashMap.entrySet().iterator();
-			Map.Entry<String, ArrayList<String>> entry;
+			Integer lineNumber;
+			Iterator<Map.Entry<Integer, ArrayList<String>>> entrySet = map.entrySet().iterator();
+			Map.Entry<Integer, ArrayList<String>> entry;
 			while (entrySet.hasNext()) {
 
 				entry = entrySet.next();
 				lineNumber = entry.getKey();
-				if (!lineNumber.equals("-1")) {
+				if (lineNumber != -1) {
 					for (String string : entry.getValue()) {
 
-						write.write(string+lineNumber);
-						write.newLine();
+						if (lineNumber == 0) {
+							write.write(string);
+							write.newLine();
+						} else {
+							write.write(string+lineNumber);
+							write.newLine();
+						}					
 					}
 				}				
 			}

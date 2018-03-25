@@ -1,17 +1,25 @@
+class A {
+    int temp;
+    int calculate(int a, int b);
+};
 
-
-class Utility {
- int var1;
- float var1;
- int findMax(int array[100]);
- };
-
-int Utility::findMax(int array[100]){
- int var1;
- };
+int A :: calculate (int a, int b) {
+    int result;
+    result = a*(a+b);
+    return (result);
+};
 
 program {
- int sample[100];
- int idx;
- int maxValue;
- };
+int a;
+int b;
+int z[1];
+int t;
+A obj;
+t = 0;
+a = 5;
+b = 10 * ( 10 + 5 );
+x = obj.calculate(a,b);
+obj.temp = 10;
+z[t] = 100;
+a = z[t];
+};

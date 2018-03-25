@@ -1,30 +1,30 @@
 package compiler.helper;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class Util {
 
-	Map<String, ArrayList<String>> hashMap = new HashMap<String,  ArrayList<String>>();
-	
-	public Map<String, ArrayList<String>> getHashMap() {
-		return hashMap;
+	Map<Integer, ArrayList<String>> map = new TreeMap<Integer,  ArrayList<String>>();
+
+	public Map<Integer, ArrayList<String>> getMap() {
+		return map;
 	}
 
-	public void setHashMap(Map<String, ArrayList<String>> hashMap) {
-		this.hashMap = hashMap;
+	public void setMap(Map<Integer, ArrayList<String>> map) {
+		this.map = map;
 	}
 
-	public Map<String, ArrayList<String>> reportError(String key, String value) {
+	public Map<Integer, ArrayList<String>> reportError(Integer key, String value) {
 		addValues(key,value);	
-		return hashMap;
+		return map;
 	}
 
-	private void addValues(String key, String value) {
+	private void addValues(Integer key, String value) {
 		ArrayList<String> tempList = null;
-		if (hashMap.containsKey(key)) {
-			tempList = hashMap.get(key);
+		if (map.containsKey(key)) {
+			tempList = map.get(key);
 			if (tempList == null)
 				tempList = new ArrayList<String>();
 			tempList.add(value);
@@ -32,7 +32,7 @@ public class Util {
 			tempList = new ArrayList<String>();
 			tempList.add(value);
 		}
-		hashMap.put(key, tempList);
+		map.put(key, tempList);
 	}
 
 }

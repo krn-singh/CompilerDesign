@@ -37,17 +37,17 @@ public class Parser {
 	private static String tokenValue = "";
 	private static TokenType type;
 	private static AstNode root;
-	public static Map<String, ArrayList<String>> hashMap;
+	public static Map<Integer, ArrayList<String>> map;
 	
-	public static Map<String, ArrayList<String>> getHashMap() {
-		return hashMap;
+	public static Map<Integer, ArrayList<String>> getMap() {
+		return map;
 	}
-	
+
 	public static void parser() throws IOException {
 
 		System.out.println("Reading grammar and generating the first and follow sets......");
 		grammar = DataReadWrite.readGrammar();
-		hashMap = Tokenizer.getHashMap();
+		map = Tokenizer.getMap();
 		firstSets();
 		followSets();
 		System.out.println("Building the parse table");
@@ -296,6 +296,51 @@ public class Parser {
 						currentContext.pop();
 						stack.pop();
 						currentContext = null;
+					} else if (top.equals("#BEGIN_assignStat")) {
+						Stack<String> currentContext = new Stack<>();
+						currentContext.push(ruleStack.peek());
+						ruleStack.pop();
+						ruleStack.push(top);
+						ruleStack.push(currentContext.peek());
+						currentContext.pop();
+						stack.pop();
+						currentContext = null;
+					} else if (top.equals("#BEGIN_var")) {
+						Stack<String> currentContext = new Stack<>();
+						currentContext.push(ruleStack.peek());
+						ruleStack.pop();
+						ruleStack.push(top);
+						ruleStack.push(currentContext.peek());
+						currentContext.pop();
+						stack.pop();
+						currentContext = null;
+					} else if (top.equals("#BEGIN_multOp")) {
+						Stack<String> currentContext = new Stack<>();
+						currentContext.push(ruleStack.peek());
+						ruleStack.pop();
+						ruleStack.push(top);
+						ruleStack.push(currentContext.peek());
+						currentContext.pop();
+						stack.pop();
+						currentContext = null;
+					} else if (top.equals("#BEGIN_addOp")) {
+						Stack<String> currentContext = new Stack<>();
+						currentContext.push(ruleStack.peek());
+						ruleStack.pop();
+						ruleStack.push(top);
+						ruleStack.push(currentContext.peek());
+						currentContext.pop();
+						stack.pop();
+						currentContext = null;
+					} else if (top.equals("#BEGIN_relOp")) {
+						Stack<String> currentContext = new Stack<>();
+						currentContext.push(ruleStack.peek());
+						ruleStack.pop();
+						ruleStack.push(top);
+						ruleStack.push(currentContext.peek());
+						currentContext.pop();
+						stack.pop();
+						currentContext = null;
 					} else if (top.startsWith("#BEGIN_")) {
 						ruleStack.push(top);
 						stack.pop();
@@ -351,15 +396,23 @@ public class Parser {
 							
 							node.setNodeType("typeNode");
 							node.setData(tokenValue);
+							node.setLineNumber(lineNumber);
 						} else if(type == TokenType.id) {
 							
 							node.setNodeType("idNode");
 							node.setData(tokenValue);
+							node.setLineNumber(lineNumber);
 						} else if((type == TokenType.intNum) || (type == TokenType.floatNum)) {
 							
 							node.setNodeType("numNode");
 							node.setData(tokenValue);
 							node.setType(type);
+							node.setLineNumber(lineNumber);
+						} else if (type == TokenType.operator) {
+							
+							node.setNodeType("operatorNode");
+							node.setData(tokenValue);
+							node.setLineNumber(lineNumber);
 						}
 						contextStack.add(node);
 						ruleStack.push(stack.peek());
@@ -473,32 +526,37 @@ public class Parser {
 			Util util = new Util();
 			
 			if (isTerminal) {
-				util.setHashMap(hashMap);
-                hashMap = util.reportError(Integer.toString(lineNumber), "Error ("+tokenName+") reported during Syntactic phase in line ");
                 	
 				if (tokenCounter<tokenList.size()) {
+					util.setMap(map);
+	                map = util.reportError(lineNumber, "Error ("+tokenName+") reported during Syntactic phase in line ");
 					nextToken();
 				} else {
 					stack.pop();
-					/*derivationList.clear();
-					DataReadWrite.writeDerivation(derivationList);
-					DataReadWrite.writeSyntacticErrors(syntacticErrors);
-					System.out.println("Parsing cannot be completed successfully because of errors in the source file. Please check the error file.");
-					System.exit(0);*/
-				}				
-			} else {
+				}	
+				
+			} else {			
 
-				util.setHashMap(hashMap);
-                hashMap = util.reportError(Integer.toString(lineNumber), "Error ("+tokenName+") reported during Syntactic phase in line ");
-
-                ArrayList<String> firstSet = firstSets.get(stack.peek());
+                //ArrayList<String> firstSet = firstSets.get(stack.peek());
 				ArrayList<String> followSet = followSets.get(stack.peek());
-				System.out.println(tokenName);
+				
 				if (followSet.contains(tokenName) || tokenName.equals("$")) {
 					
+					util.setMap(map);
+	                map = util.reportError(lineNumber, "Error ("+tokenName+") reported during Syntactic phase in line ");
 					stack.pop();
+					
 				} else {
 
+					if (tokenCounter<tokenList.size()) {
+						util.setMap(map);
+		                map = util.reportError(lineNumber, "Error ("+tokenName+") reported during Syntactic phase in line ");
+						nextToken();
+					} else {	
+						util.setMap(map);
+		                map = util.reportError(lineNumber, "Error ("+tokenName+") reported during Syntactic phase in line ");
+						stack.pop();
+					}
 /*					while (!firstSet.contains(token) || (DataReadWrite.productionsWithEpsilon().contains(stack.peek()) && !followSet.contains(token))) {
 						
 						if (tokenCounter<tokenList.size()) {
@@ -514,23 +572,6 @@ public class Parser {
 							System.exit(0);
 						}
 					}*/
-					
-					if (!firstSet.contains(tokenName)) {
-						
-						if (tokenCounter<tokenList.size()) {
-							nextToken();
-							System.out.println(tokenName);
-						} else {
-							
-							/*derivationList.clear();
-							DataReadWrite.writeDerivation(derivationList);
-							DataReadWrite.writeSyntacticErrors(syntacticErrors);
-							System.out.println("Parsing cannot be completed successfully because of errors in the source file. Please check the error file.");
-							System.exit(0);*/
-						}
-					} else {
-						stack.pop();
-					}
 				}
 			}
 		} catch (Exception e) {

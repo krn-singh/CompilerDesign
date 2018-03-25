@@ -1,1 +1,1 @@
-class id { int id ; float id ; int id ( int id [ intNum ] ) ; } ; int id sr id ( int id [ intNum ] ) { int id ; } ; program { int id [ intNum ] ; int id ; int id ; } ; 
+class id { int id ; int id ( int id , int id ) ; } ; int id sr id ( int id , int id ) { int id ; id = id * ( id + id ) ; return ( id ) ; } ; program { int id ; int id ; int id [ intNum ] ; int id ; id id ; id = intNum ; id = intNum ; id = intNum * ( intNum + intNum ) ; id = id . id ( id , id ) ; id . id = intNum ; id [ id ] = intNum ; id = id [ id ] ; } ; 

@@ -31,54 +31,54 @@ varStat				-> typeNew #MAKE_NODE id #BEGIN_varDecl varDecl #END_varDecl
 varStatNew			-> #MAKE_NODE id varStatTail
 varStatNew			-> statementOther
 varStatTail			-> #MAKE_NODE id #BEGIN_varDecl varDecl #END_varDecl
-varStatTail			-> indiceList idnestList assignStatTail ;
-varStatTail			-> ( aParams ) idnestList assignStatTail ;
-assignStatTail		-> assignOp expr
+varStatTail			-> #BEGIN_assignStat #BEGIN_var #BEGIN_indexList indiceList idnestList #END_indexList #END_var assignStatTail ; #END_assignStat
+varStatTail			-> #BEGIN_assignStat #BEGIN_var ( aParams ) idnestList #END_var assignStatTail ; #END_assignStat
+assignStatTail		-> assignOp #BEGIN_expr expr #END_expr
 typeNew				-> #MAKE_NODE float
 typeNew				-> #MAKE_NODE int
-statementOther		-> if ( expr ) then statBlock else statBlock ;
-statementOther		-> for ( type id assignOp expr ; relExpr ; assignStat ) statBlock ;
-statementOther		-> get ( variable ) ;
-statementOther		-> put ( expr ) ;
-statementOther		-> return ( expr ) ;
+statementOther		-> #BEGIN_ifStat if ( expr ) then #BEGIN_statBlock statBlock #END_statBlock else #BEGIN_statBlock statBlock #END_statBlock ; #END_ifStat
+statementOther		-> #BEGIN_forStat for ( type #MAKE_NODE id assignOp #BEGIN_expr expr #END_expr ; relExpr ; assignStat ) #BEGIN_statBlock statBlock #END_statBlock ; #END_forStat
+statementOther		-> #BEGIN_getStat get ( variable ) ; #END_getStat
+statementOther		-> #BEGIN_putStat put ( expr ) ; #END_putStat
+statementOther		-> #BEGIN_returnStat return ( expr ) ; #END_returnStat
 statementList 		-> statement statementList
 statementList 		-> EPSILON
 varDecl 			-> #BEGIN_arraySizeList arraySizeList ; #END_arraySizeList
 arraySizeList		-> arraySize arraySizeList
 arraySizeList		-> EPSILON
 statement 			-> assignStat ;
-statement 			-> if ( expr ) then statBlock else statBlock ;
-statement 			-> for ( type id assignOp expr ; relExpr ; assignStat ) statBlock ;
-statement 			-> get ( variable ) ;
-statement 			-> put ( expr ) ;
-statement 			-> return ( expr ) ;
-assignStat 			-> variable assignOp expr
+statement 			-> #BEGIN_ifStat if ( expr ) then #BEGIN_statBlock statBlock #END_statBlock else #BEGIN_statBlock statBlock #END_statBlock ; #END_ifStat
+statement 			-> #BEGIN_forStat for ( type #MAKE_NODE id assignOp #BEGIN_expr expr #END_expr ; relExpr ; assignStat ) #BEGIN_statBlock statBlock #END_statBlock ; #END_forStat
+statement 			-> #BEGIN_getStat get ( variable ) ; #END_getStat
+statement 			-> #BEGIN_putStat put ( expr ) ; #END_putStat
+statement 			-> #BEGIN_returnStat return ( expr ) ; #END_returnStat
+assignStat 			-> variable #BEGIN_assignStat assignOp #BEGIN_expr expr #END_expr #END_assignStat
 statBlock 			-> { statementList }
 statBlock 			-> statement
 statBlock 			-> EPSILON
 expr 				-> arithExpr exprNew
 exprNew 			-> EPSILON
-exprNew 			-> relOp arithExpr
-relExpr 			-> arithExpr relOp arithExpr
+exprNew 			-> #BEGIN_relOp relOp arithExpr #END_relOp
+relExpr 			-> arithExpr #BEGIN_relOp relOp arithExpr #END_relOp
 arithExpr 			-> term arithExprNew
-arithExprNew 		-> addOp term arithExprNew
+arithExprNew 		-> #BEGIN_addOp addOp term arithExprNew #END_addOp
 arithExprNew 		-> EPSILON
 sign 				-> +
 sign 				-> -
 term 				-> factor termNew
-termNew 			-> multOp factor termNew
+termNew 			-> #BEGIN_multOp multOp factor termNew #END_multOp
 termNew 			-> EPSILON
 factor 				-> varFunc
-factor 				-> intNum
-factor 				-> floatNum
+factor 				-> #MAKE_NODE intNum
+factor 				-> #MAKE_NODE floatNum
 factor 				-> ( arithExpr )
 factor 				-> not factor
 factor 				-> sign factor
-variable 			-> id variableNew
-variableNew			-> indiceList idnestList
+variable 			-> #MAKE_NODE id #BEGIN_var variableNew #END_var
+variableNew			-> #BEGIN_indexList indiceList idnestList #END_indexList
 variableNew			-> ( aParams ) idnestList
-varFunc 			-> id indiceList idnestListNew varFuncTail
-varFuncTail			-> ( aParams ) varFuncTail2
+varFunc 			-> #MAKE_NODE id #BEGIN_var #BEGIN_indexList indiceList idnestListNew varFuncTail #END_indexList #END_var
+varFuncTail			-> #BEGIN_aParamList ( aParams ) #END_aParamList varFuncTail2
 varFuncTail			-> EPSILON
 varFuncTail2		-> idnest
 varFuncTail2		-> EPSILON
@@ -87,12 +87,12 @@ idnestListNew		-> EPSILON
 indiceList			-> indice indiceList
 indiceList			-> EPSILON
 idnestNew 			-> . idnestNewTail
-idnestNewTail		-> id indiceList
+idnestNewTail		-> #MAKE_NODE id indiceList
 idnestNewTail		-> ( aParams )
 indice 				-> [ arithExpr ]
 idnestList			-> idnest idnestList
 idnestList			-> EPSILON
-idnest 				-> . id indiceList
+idnest 				-> . #MAKE_NODE id indiceList
 arraySize 			-> [ #MAKE_NODE intNum ]
 type 				-> #MAKE_NODE int
 type 				-> #MAKE_NODE float
@@ -108,15 +108,15 @@ aParamsTailList		-> EPSILON
 fParamsTail 		-> , type #MAKE_NODE id #BEGIN_arraySizeList arraySizeList #END_arraySizeList
 aParamsTail 		-> , expr
 assignOp 			-> =
-relOp 				-> eq
-relOp 				-> neq
-relOp 				-> lt
-relOp 				-> gt
-relOp 				-> leq
-relOp 				-> geq
-addOp 				-> +
-addOp 				-> -
-addOp 				-> or
-multOp 				-> *
-multOp 				-> /
-multOp 				-> and
+relOp 				-> #MAKE_NODE eq
+relOp 				-> #MAKE_NODE neq
+relOp 				-> #MAKE_NODE lt
+relOp 				-> #MAKE_NODE gt
+relOp 				-> #MAKE_NODE leq
+relOp 				-> #MAKE_NODE geq
+addOp 				-> #MAKE_NODE +
+addOp 				-> #MAKE_NODE -
+addOp 				-> #MAKE_NODE or
+multOp 				-> #MAKE_NODE *
+multOp 				-> #MAKE_NODE /
+multOp 				-> #MAKE_NODE and

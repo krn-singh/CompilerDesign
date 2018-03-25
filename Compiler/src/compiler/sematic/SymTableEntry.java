@@ -10,6 +10,7 @@ public class SymTableEntry {
 	private SymTableEntryCategory category;
 	private String type;
 	private SymTable link;
+	private Integer lineNumber;
 	private ArrayList<SymTable> inheritedClassList;
 	private ArrayList<String> arraySizeList;
 
@@ -18,6 +19,7 @@ public class SymTableEntry {
 		category = null;
 		type = null;
 		link = null;
+		lineNumber = null;
 		inheritedClassList = new ArrayList<SymTable>();
 		arraySizeList = new ArrayList<String>();
 	}
@@ -26,6 +28,15 @@ public class SymTableEntry {
 		this.name = name;
 		this.category = category;
 		this.type = type;
+		inheritedClassList = new ArrayList<SymTable>();
+		arraySizeList = new ArrayList<String>();
+	}
+	
+	public SymTableEntry(String name, SymTableEntryCategory category, String type, Integer lineNumber) {
+		this.name = name;
+		this.category = category;
+		this.type = type;
+		this.lineNumber = lineNumber;
 		inheritedClassList = new ArrayList<SymTable>();
 		arraySizeList = new ArrayList<String>();
 	}
@@ -80,6 +91,14 @@ public class SymTableEntry {
 		this.link = link;
 	}
 
+	public Integer getLineNumber() {
+		return lineNumber;
+	}
+
+	public void setLineNumber(Integer lineNumber) {
+		this.lineNumber = lineNumber;
+	}
+
 	public ArrayList<SymTable> getInheritedClassList() {
 		return inheritedClassList;
 	}
@@ -107,6 +126,13 @@ public class SymTableEntry {
 	public SymTableEntry createEntry(String name, SymTableEntryCategory category, String type) {
 		
 		SymTableEntry entry = new SymTableEntry(name, category, type);
+		
+		return entry;
+	}
+	
+	public SymTableEntry createEntry(String name, SymTableEntryCategory category, String type, Integer lineNumber) {
+		
+		SymTableEntry entry = new SymTableEntry(name, category, type, lineNumber);
 		
 		return entry;
 	}

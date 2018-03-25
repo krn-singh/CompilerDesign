@@ -23,10 +23,10 @@ public class Tokenizer {
 	public static Token token;
 	public static List<Token> outputTokens = new ArrayList<Token>();
 	public static List<String> aToCcFormat = new ArrayList<String>();
-	public static Map<String, ArrayList<String>> hashMap;
-	
-	public static Map<String, ArrayList<String>> getHashMap() {
-		return hashMap;
+	public static Map<Integer, ArrayList<String>> map;
+
+	public static Map<Integer, ArrayList<String>> getMap() {
+		return map;
 	}
 
 	/**
@@ -341,8 +341,8 @@ public class Tokenizer {
                     currentChar += token.getTokenValue().length();
                     tokens.add(token);
                 } else {
-                	util.setHashMap(hashMap);
-                hashMap = util.reportError(Integer.toString(lineNumber), "Error ("+Character.toString(input.charAt(currentChar))+") reported during lexical phase in line ");
+                	util.setMap(map);
+                map = util.reportError(lineNumber, "Error ("+Character.toString(input.charAt(currentChar))+") reported during lexical phase in line ");
                 	currentChar++;
                 }
                 break;
@@ -360,7 +360,7 @@ public class Tokenizer {
     	System.out.println("Fetching input......");
     	System.out.println("Recording tokens......");
     	TreeMap<Integer, String> inputList = DataReadWrite.readInput();
-    	hashMap = new Util().getHashMap();
+    	map = new Util().getMap();
     	List<Token> receivedTokens=null;
     	int tokenCount=0;
     	
