@@ -406,7 +406,7 @@ public class Parser {
 							
 							node.setNodeType("numNode");
 							node.setData(tokenValue);
-							node.setType(type);
+							node.setType(type == TokenType.intNum ? "int" : "float");
 							node.setLineNumber(lineNumber);
 						} else if (type == TokenType.operator) {
 							

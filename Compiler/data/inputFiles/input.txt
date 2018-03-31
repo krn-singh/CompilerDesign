@@ -1,6 +1,14 @@
-class A {
-    int temp;
+
+class A: C{
+    int xyz;
     int calculate(int a, int b);
+};
+
+class B: A {
+};
+
+class C: B {
+
 };
 
 int A :: calculate (int a, int b) {
@@ -9,17 +17,18 @@ int A :: calculate (int a, int b) {
     return (result);
 };
 
+int b(int a, int b) {
+    int result;
+    return (result);
+    return (10);
+};
+
 program {
-int a;
-int b;
-int z[1];
-int t;
-A obj;
-t = 0;
-a = 5;
-b = 10 * ( 10 + 5 );
-x = obj.calculate(a,b);
-obj.temp = 10;
-z[t] = 100;
-a = z[t];
+    int maxValue;
+    int array[100];
+    int n;
+    int b;
+    C abc;
+    maxValue=b(n,b);
+    abc.xyz = 10;
 };

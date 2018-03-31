@@ -37,7 +37,7 @@ assignStatTail		-> assignOp #BEGIN_expr expr #END_expr
 typeNew				-> #MAKE_NODE float
 typeNew				-> #MAKE_NODE int
 statementOther		-> #BEGIN_ifStat if ( expr ) then #BEGIN_statBlock statBlock #END_statBlock else #BEGIN_statBlock statBlock #END_statBlock ; #END_ifStat
-statementOther		-> #BEGIN_forStat for ( type #MAKE_NODE id assignOp #BEGIN_expr expr #END_expr ; relExpr ; assignStat ) #BEGIN_statBlock statBlock #END_statBlock ; #END_forStat
+statementOther		-> #BEGIN_forStat for ( type #MAKE_NODE id #BEGIN_assignStat #BEGIN_var #BEGIN_indexList #END_indexList #END_var assignOp #BEGIN_expr expr #END_expr #END_assignStat ; relExpr ; assignStat ) #BEGIN_statBlock statBlock #END_statBlock ; #END_forStat
 statementOther		-> #BEGIN_getStat get ( variable ) ; #END_getStat
 statementOther		-> #BEGIN_putStat put ( expr ) ; #END_putStat
 statementOther		-> #BEGIN_returnStat return ( expr ) ; #END_returnStat
@@ -48,7 +48,7 @@ arraySizeList		-> arraySize arraySizeList
 arraySizeList		-> EPSILON
 statement 			-> assignStat ;
 statement 			-> #BEGIN_ifStat if ( expr ) then #BEGIN_statBlock statBlock #END_statBlock else #BEGIN_statBlock statBlock #END_statBlock ; #END_ifStat
-statement 			-> #BEGIN_forStat for ( type #MAKE_NODE id assignOp #BEGIN_expr expr #END_expr ; relExpr ; assignStat ) #BEGIN_statBlock statBlock #END_statBlock ; #END_forStat
+statement 			-> #BEGIN_forStat for ( type #MAKE_NODE id #BEGIN_assignStat #BEGIN_var #BEGIN_indexList #END_indexList #END_var assignOp #BEGIN_expr expr #END_expr #END_assignStat ; relExpr ; assignStat ) #BEGIN_statBlock statBlock #END_statBlock ; #END_forStat
 statement 			-> #BEGIN_getStat get ( variable ) ; #END_getStat
 statement 			-> #BEGIN_putStat put ( expr ) ; #END_putStat
 statement 			-> #BEGIN_returnStat return ( expr ) ; #END_returnStat

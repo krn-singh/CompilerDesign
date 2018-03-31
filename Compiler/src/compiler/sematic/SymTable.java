@@ -124,11 +124,11 @@ public class SymTable {
 	
 	public boolean checkDeclInSameScope(SymTable table, String name) {
 		
-		if (searchRecord(table, name) == null) {
-			return false;
-		} else {
+		if (searchRecord(table, name) != null) {
 			return true;
 		}
+		
+		return false;
 	}
 
 	public boolean checkDeclInParentScope(SymTable table, LinkedList<SymTable> tables, String name) {
@@ -164,6 +164,56 @@ public class SymTable {
 				return true;
 			}
 		}
+		return false;
+	}
+	
+	public SymTable searchInSuperClass(SymTable global, SymTable table, LinkedList<SymTable> tables, String name) {
+		
+		this.tables = tables;
+		if (searchRecord(table, name) != null) {
+			return table;
+		}
+		SymTableEntry entry = searchRecord(global, table.getTableName());
+		if (entry == null || entry.getInheritedClassList().size() == 0) {
+			return null;
+		}
+		for (SymTable symTable : entry.getInheritedClassList()) {
+			if (searchRecord(symTable, name) != null) {
+				return symTable;
+			}
+		}
+		return null;
+	}
+	
+	public boolean validateParamsCount(SymTable table, int paramCount) {
+		
+		if (table == null) {
+			return false;
+		}
+		
+		int tableParamsCount = 0;
+		
+		for (SymTableEntry symTableEntry : table.getEntries()) {
+			
+			if (symTableEntry.getCategory() == SymTableEntryCategory.Parameter) {
+				tableParamsCount++;
+			}
+		}
+		
+		if (tableParamsCount == paramCount) {
+			return true;
+		}
+		
+		return false;
+	}
+	
+	public boolean validateParams(SymTable table, int i, String type) {
+		
+		String tableEntryType = table.getEntries().get(i).getType();
+		if (tableEntryType.equals(type)) {
+			return true;
+		}
+		
 		return false;
 	}
 }
