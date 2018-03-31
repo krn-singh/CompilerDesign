@@ -1,0 +1,1 @@
+class id { int id ; int id ( int id , int id ) ; } ; int id sr id ( int id , int id ) { int id ; id = id * ( id + id ) ; return ( id ) ; } ; int id ( int id , int id ) { int id ; return ( id ) ; } ; program { int id ; int id [ intNum ] ; int id ; int id ; id id ; id = id ( intNum , intNum ) ; id . id = intNum ; } ; 

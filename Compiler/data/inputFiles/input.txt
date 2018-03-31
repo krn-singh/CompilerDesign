@@ -1,0 +1,26 @@
+
+class A {
+    int xyz;
+    int calculate(int a, int b);
+};
+
+int A :: calculate (int a, int b) {
+    int result;
+    result = a*(a+b);
+    return (result);
+};
+
+int b(int a, int b) {
+    int result;
+    return (result);
+};
+
+program {
+    int maxValue;
+    int array[100];
+    int n;
+    int b;
+    A abc;
+    maxValue=b(10,2);
+    abc.xyz = 10;
+};

@@ -35,4 +35,5 @@ public class Token {
 
         return "<TokenType: "+type.toString()+", TokenValue: '"+tokenValue+"', Line Number: "+lineNumber+">";
     }
+	
 }
