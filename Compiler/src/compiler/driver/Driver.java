@@ -23,6 +23,6 @@ public class Driver {
        	
     	Tokenizer.lexicalAnalyzer();
     	Parser.parser();
-    	new Semantic().semanticAnalysis();
+    	new Semantic().initializeSematicAnalysis();
     }
 }

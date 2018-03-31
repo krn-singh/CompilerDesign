@@ -1,1 +1,0 @@
-Semantic Phase: Undeclared data member (xyz) in line 33

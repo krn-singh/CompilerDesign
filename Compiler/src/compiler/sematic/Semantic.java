@@ -6,7 +6,6 @@ import java.util.LinkedList;
 import java.util.Map;
 
 import compiler.constants.CompilerEnum.SymTableEntryCategory;
-import compiler.constants.CompilerEnum.TokenType;
 import compiler.helper.DataReadWrite;
 import compiler.helper.Util;
 import compiler.syntactic.AstNode;
@@ -26,21 +25,21 @@ public class Semantic {
 	private ArrayList<String> validDeclTypes;
 	private ArrayList<String> funcList;
 	
-	public void initialize() {
+	public void initializeSematicAnalysis() throws IOException {
 		
+		map = Parser.getMap();
+		root = Parser.getRoot();
 		validDeclTypes = new ArrayList<String>();
 		validDeclTypes.add("int");
 		validDeclTypes.add("float");
 		funcList = new ArrayList<String>();
+		semanticAnalysis();
 	}
 	
 	public void semanticAnalysis() throws IOException {
 
 		System.out.println("Starting Semantic Analysis phase..........");		
 		
-		map = Parser.getMap();
-		root = Parser.getRoot();
-		initialize();
 		phaseOne(root);
 		validateInheritance(root);
 		phaseTwo(root);
@@ -243,7 +242,6 @@ public class Semantic {
 	
 		SymTable table = new SymTable();
 		Util util = new Util();
-		SymTableEntry entry = new SymTableEntry();
 		Integer lineNumber;
 		String type = "";
 		
@@ -379,8 +377,6 @@ public class Semantic {
 	
 	public String varNode(SymTable table, AstNode node) {
 		
-		SymTable tableObj = new SymTable();
-		Util util = new Util();
 		String type = "";
 		boolean isFreeFunc = false;
 		boolean isArray = false;
@@ -389,120 +385,20 @@ public class Semantic {
 		if (node.getChildrens().get(1).getChildrens().size() > 0) {
 			
 			isArray = true;
-			if (node.getChildrens().get(1).getChildrens().get(0).getNodeType().equals("aParamList")) { isFreeFunc = true; }
+			if (node.getChildrens().get(1).getChildrens().get(0).getNodeType().equals("aParamList"))  { isFreeFunc = true; 	}
 			else if (node.getChildrens().get(1).getChildrens().get(0).getNodeType().equals("idNode")) { isClassMember = true; }
 		}
-		
-		tableObj.setTables(tables);
-		
-		if (isFreeFunc) {
-
-			if (tableObj.searchRecord(globalTable, node.getChildrens().get(0).getData()) == null) {
-				
-				util.setMap(map);
-				Integer lineNumber = node.getChildrens().get(0).getLineNumber();
-				map = util.reportError(lineNumber, "Semantic Phase: Undeclared function ("+node.getChildrens().get(0).getData()+") in line ");
-			} else {
-
-				
-				SymTable funcReferenceTble = tableObj.findTable(node.getChildrens().get(0).getData());
-				int paramCount = node.getChildrens().get(1).getChildrens().get(0).getChildrens().size();
-				
-				if (!tableObj.validateParamsCount(funcReferenceTble, paramCount)) {
-					
-					util.setMap(map);
-					Integer lineNumber = node.getChildrens().get(0).getLineNumber();
-					map = util.reportError(lineNumber, "Semantic Phase: Function ("+node.getChildrens().get(0).getData()+") with invalid parameters in line ");
-				} else {
-
-					if (aParamListNode(table, funcReferenceTble, node.getChildrens().get(1).getChildrens().get(0))) {
-						
-						type = tableObj.searchRecord(globalTable, node.getChildrens().get(0).getData()).getType();
-						node.setType(type);
-						return type;
-					} else {
-						
-						util.setMap(map);
-						Integer lineNumber = node.getChildrens().get(0).getLineNumber();
-						map = util.reportError(lineNumber, "Semantic Phase: Function ("+node.getChildrens().get(0).getData()+") with invalid parameters in line ");
-					}
-				}				
-			}
-		} else if(isClassMember) { 
-			
-			if (tableObj.searchRecord(table, node.getChildrens().get(0).getData()) == null) {
-				
-				util.setMap(map);
-				Integer lineNumber = node.getChildrens().get(0).getLineNumber();
-				map = util.reportError(lineNumber, "Semantic Phase: Undeclared variable ("+node.getChildrens().get(0).getData()+") in line ");
-			} else if(tableObj.searchRecord(table, node.getChildrens().get(0).getData()).getType().equals("int") || tableObj.searchRecord(table, node.getChildrens().get(0).getData()).getType().equals("float")) {
-				
-				util.setMap(map);
-				Integer lineNumber = node.getChildrens().get(0).getLineNumber();
-				map = util.reportError(lineNumber, "Semantic Phase: Invalid class type of variable ("+node.getChildrens().get(0).getData()+") in line ");
-			} else {
-
-				// finding the symbol table for the class to which the object belongs
-				SymTable classTable = tableObj.findTable(tableObj.searchRecord(table, node.getChildrens().get(0).getData()).getType());
-				if (tableObj.findTable(tableObj.searchRecord(table, node.getChildrens().get(0).getData()).getType()) == null) {
-					return type;
-				}
-				type = validateIndexListNode(classTable, table, node.getChildrens().get(1));
-				node.setType(type);
-				return type;
-			}
-		} else if(isArray) {
-			
-			if (tableObj.searchRecord(table, node.getChildrens().get(0).getData()) == null) {
-				
-				util.setMap(map);
-				Integer lineNumber = node.getChildrens().get(0).getLineNumber();
-				map = util.reportError(lineNumber, "Semantic Phase: Undeclared array ("+node.getChildrens().get(0).getData()+") in line ");
-			} else {
-
-				SymTableEntry entry = tableObj.searchRecord(table, node.getChildrens().get(0).getData());
-				if (entry.getArraySizeList().size() != node.getChildrens().get(1).getChildrens().size()) {
-					
-					util.setMap(map);
-					Integer lineNumber = node.getChildrens().get(0).getLineNumber();
-					map = util.reportError(lineNumber, "Semantic Phase: Array ("+node.getChildrens().get(0).getData()+") with invalid dimensions in line ");
-				} else {
-
-					if (arraySizeListNode(table, node.getChildrens().get(1))) {
-						
-						type = tableObj.searchRecord(table, node.getChildrens().get(0).getData()).getType();
-						node.setType(type);
-						return type;
-					} else {
-						
-						util.setMap(map);
-						Integer lineNumber = node.getChildrens().get(0).getLineNumber();
-						map = util.reportError(lineNumber, "Semantic Phase: Array ("+node.getChildrens().get(0).getData()+") with invalid dimensions in line ");
-					}
-				}
-			}
-		} else {
-
-			if (tableObj.searchRecord(table, node.getChildrens().get(0).getData()) == null) {
-				
-				util.setMap(map);
-				Integer lineNumber = node.getChildrens().get(0).getLineNumber();
-				map = util.reportError(lineNumber, "Semantic Phase: Undeclared variable ("+node.getChildrens().get(0).getData()+") in line ");
-			} else {
-				
-				type = tableObj.searchRecord(table, node.getChildrens().get(0).getData()).getType();
-				node.setType(type);
-				return type;
-			}
-		}
+	
+		if (isFreeFunc) 		  	{	type = isFreeFunction(table, node);	}
+		else if(isClassMember)   { 	type = isClassMember(table, node);	}
+		else if(isArray) 		{	type = isArray(table, node);			} 
+		else 					{   type = isLocalVariable(table, node);	}
 		
 		return type;
 	}
 	
 	public String exprNode(SymTable table, AstNode node) {
 		
-		SymTable tableObj = new SymTable();
-		Util util = new Util();
 		String type = "";
 		
 		switch (node.getChildrens().get(0).getNodeType()) {
@@ -545,8 +441,6 @@ public class Semantic {
 	
 	public String addOpNode(SymTable table, AstNode node) {
 		
-		SymTable tableObj = new SymTable();
-		Util util = new Util();
 		String type = "";
 		String leftOperandType = "";
 		String rightOperandType = "";
@@ -615,8 +509,6 @@ public class Semantic {
 	
 	public String multOpNode(SymTable table, AstNode node) {
 		
-		SymTable tableObj = new SymTable();
-		Util util = new Util();
 		String type = "";
 		String leftOperandType = "";
 		String rightOperandType = "";
@@ -685,8 +577,6 @@ public class Semantic {
 	
 	public String relOpNode(SymTable table, AstNode node) {
 		
-		SymTable tableObj = new SymTable();
-		Util util = new Util();
 		String type = "";
 		String leftOperandType = "";
 		String rightOperandType = "";
@@ -756,7 +646,6 @@ public class Semantic {
 	public boolean aParamListNode(SymTable table, SymTable funcReferenceTble, AstNode node) {
 		
 		SymTable tableObj = new SymTable();
-		Util util = new Util();
 		String type = "";
 		
 		for (int i = 0; i < node.getChildrens().size(); i++) {
@@ -788,8 +677,6 @@ public class Semantic {
 	
 	public boolean arraySizeListNode(SymTable table, AstNode node) {
 		
-		SymTable tableObj = new SymTable();
-		Util util = new Util();
 		String type = "";
 		
 		for (int i = 0; i < node.getChildrens().size(); i++) {
@@ -911,7 +798,6 @@ public class Semantic {
 		}
 		
 		SymTable table = new SymTable();
-		SymTableEntry entry = new SymTableEntry();
 		String key = node.getNodeType();
 		
 		switch (key) {
@@ -942,6 +828,141 @@ public class Semantic {
 		for (AstNode child : childrens) { 
 			validateInheritance(child);
 		}
+	}
+	
+	public String isFreeFunction(SymTable table, AstNode node) {
+		
+		SymTable tableObj = new SymTable();
+		Util util = new Util();
+		String type = "";
+		tableObj.setTables(tables);
+		
+		if (tableObj.searchRecord(globalTable, node.getChildrens().get(0).getData()) == null) {
+			
+			util.setMap(map);
+			Integer lineNumber = node.getChildrens().get(0).getLineNumber();
+			map = util.reportError(lineNumber, "Semantic Phase: Undeclared function ("+node.getChildrens().get(0).getData()+") in line ");
+		} else {
+
+			
+			SymTable funcReferenceTble = tableObj.findTable(node.getChildrens().get(0).getData());
+			int paramCount = node.getChildrens().get(1).getChildrens().get(0).getChildrens().size();
+			
+			if (!tableObj.validateParamsCount(funcReferenceTble, paramCount)) {
+				
+				util.setMap(map);
+				Integer lineNumber = node.getChildrens().get(0).getLineNumber();
+				map = util.reportError(lineNumber, "Semantic Phase: Function ("+node.getChildrens().get(0).getData()+") with invalid parameters in line ");
+			} else {
+
+				if (aParamListNode(table, funcReferenceTble, node.getChildrens().get(1).getChildrens().get(0))) {
+					
+					type = tableObj.searchRecord(globalTable, node.getChildrens().get(0).getData()).getType();
+					node.setType(type);
+					return type;
+				} else {
+					
+					util.setMap(map);
+					Integer lineNumber = node.getChildrens().get(0).getLineNumber();
+					map = util.reportError(lineNumber, "Semantic Phase: Function ("+node.getChildrens().get(0).getData()+") with invalid parameters in line ");
+				}
+			}				
+		}
+		
+		return type;
+	}
+	
+	public String isClassMember(SymTable table, AstNode node) {
+		
+		SymTable tableObj = new SymTable();
+		Util util = new Util();
+		String type = "";
+		tableObj.setTables(tables);
+		
+		if (tableObj.searchRecord(table, node.getChildrens().get(0).getData()) == null) {
+			
+			util.setMap(map);
+			Integer lineNumber = node.getChildrens().get(0).getLineNumber();
+			map = util.reportError(lineNumber, "Semantic Phase: Undeclared variable ("+node.getChildrens().get(0).getData()+") in line ");
+		} else if(tableObj.searchRecord(table, node.getChildrens().get(0).getData()).getType().equals("int") || tableObj.searchRecord(table, node.getChildrens().get(0).getData()).getType().equals("float")) {
+			
+			util.setMap(map);
+			Integer lineNumber = node.getChildrens().get(0).getLineNumber();
+			map = util.reportError(lineNumber, "Semantic Phase: Invalid class type of variable ("+node.getChildrens().get(0).getData()+") in line ");
+		} else {
+
+			// finding the symbol table for the class to which the object belongs
+			SymTable classTable = tableObj.findTable(tableObj.searchRecord(table, node.getChildrens().get(0).getData()).getType());
+			if (tableObj.findTable(tableObj.searchRecord(table, node.getChildrens().get(0).getData()).getType()) == null) {
+				return type;
+			}
+			type = validateIndexListNode(classTable, table, node.getChildrens().get(1));
+			node.setType(type);
+			return type;
+		}
+		
+		return type;
+	}
+	
+	public String isArray(SymTable table, AstNode node) {
+		
+		SymTable tableObj = new SymTable();
+		Util util = new Util();
+		String type = "";
+		tableObj.setTables(tables);
+		
+		if (tableObj.searchRecord(table, node.getChildrens().get(0).getData()) == null) {
+			
+			util.setMap(map);
+			Integer lineNumber = node.getChildrens().get(0).getLineNumber();
+			map = util.reportError(lineNumber, "Semantic Phase: Undeclared array ("+node.getChildrens().get(0).getData()+") in line ");
+		} else {
+
+			SymTableEntry entry = tableObj.searchRecord(table, node.getChildrens().get(0).getData());
+			if (entry.getArraySizeList().size() != node.getChildrens().get(1).getChildrens().size()) {
+				
+				util.setMap(map);
+				Integer lineNumber = node.getChildrens().get(0).getLineNumber();
+				map = util.reportError(lineNumber, "Semantic Phase: Array ("+node.getChildrens().get(0).getData()+") with invalid dimensions in line ");
+			} else {
+
+				if (arraySizeListNode(table, node.getChildrens().get(1))) {
+					
+					type = tableObj.searchRecord(table, node.getChildrens().get(0).getData()).getType();
+					node.setType(type);
+					return type;
+				} else {
+					
+					util.setMap(map);
+					Integer lineNumber = node.getChildrens().get(0).getLineNumber();
+					map = util.reportError(lineNumber, "Semantic Phase: Array ("+node.getChildrens().get(0).getData()+") with invalid dimensions in line ");
+				}
+			}
+		}
+		
+		return type;
+	}
+	
+	public String isLocalVariable(SymTable table, AstNode node) {
+		
+		SymTable tableObj = new SymTable();
+		Util util = new Util();
+		String type = "";
+		tableObj.setTables(tables);
+		
+		if (tableObj.searchRecord(table, node.getChildrens().get(0).getData()) == null) {
+			
+			util.setMap(map);
+			Integer lineNumber = node.getChildrens().get(0).getLineNumber();
+			map = util.reportError(lineNumber, "Semantic Phase: Undeclared variable ("+node.getChildrens().get(0).getData()+") in line ");
+		} else {
+			
+			type = tableObj.searchRecord(table, node.getChildrens().get(0).getData()).getType();
+			node.setType(type);
+			return type;
+		}
+		
+		return type;
 	}
 	
 	public void printTable(SymTable table) {
