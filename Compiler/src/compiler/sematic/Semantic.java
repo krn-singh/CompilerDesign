@@ -18,17 +18,28 @@ public class Semantic {
 	private SymTable globalTable;
 	private SymTableEntry currentEntry;
 	private AstNode root;
-	private LinkedList<SymTable> tables = new LinkedList<SymTable>();
-	public int tableLevel = 0;
-	public static Map<Integer, ArrayList<String>> map;
-	private ArrayList<String> recordSymbolTables = new ArrayList<String>();
+	private static LinkedList<SymTable> tables;
+	private static Map<Integer, ArrayList<String>> map;
+	private ArrayList<String> recordSymbolTables;
 	private ArrayList<String> validDeclTypes;
 	private ArrayList<String> funcList;
-	
+	private SymTable tableObj = new SymTable();
+	private Util util = new Util();
+
+	public static LinkedList<SymTable> getTables() {
+		return tables;
+	}
+
+	public static Map<Integer, ArrayList<String>> getMap() {
+		return map;
+	}
+
 	public void initializeSematicAnalysis() throws IOException {
 		
 		map = Parser.getMap();
 		root = Parser.getRoot();
+		tables = new LinkedList<SymTable>();
+		recordSymbolTables = new ArrayList<String>();
 		validDeclTypes = new ArrayList<String>();
 		validDeclTypes.add("int");
 		validDeclTypes.add("float");
@@ -41,8 +52,9 @@ public class Semantic {
 		System.out.println("Starting Semantic Analysis phase..........");		
 		
 		phaseOne(root);
-		validateInheritance(root);
+		//validateInheritance(root);
 		phaseTwo(root);
+		calculateMemorySize();
 		
 		System.out.println("************* Printing Tree after Type Checking ************");
 		System.out.println();
@@ -55,16 +67,14 @@ public class Semantic {
 		System.out.println();
 		
 		for (SymTable symTable : tables) {
-			print(symTable);
-			System.out.println();
-		}		
+			if (!symTable.getEntries().isEmpty()) {
+				print(symTable);
+				System.out.println();
+			}		
+		}
 		
 		DataReadWrite.writeSymbolTables(recordSymbolTables);
-		DataReadWrite.writeErrors(map);
-		System.out.println("##################### END ######################");
-		
-		
-		
+		DataReadWrite.writeErrors(map);		
 	}
 	
 	public void phaseOne(AstNode node) {
@@ -73,8 +83,6 @@ public class Semantic {
 			return;
 		}
 		
-		SymTable table = new SymTable();
-		Util util = new Util();
 		SymTableEntry entry = new SymTableEntry();
 		Integer lineNumber;
 		
@@ -85,15 +93,15 @@ public class Semantic {
 		switch (key) {
 		case "prog":
 			
-			globalTable = table.createGlobalTable();
-			tables = table.getTables();
+			globalTable = tableObj.createGlobalTable();
+			tables = tableObj.getTables();
 			break;
 			
 		case "classDecl":
 			
-			table.setTables(tables);
-			currentTable = table.createTable(node.getChildrens().get(0).getData(), globalTable);
-			tables = table.getTables();
+			tableObj.setTables(tables);
+			currentTable = tableObj.createTable(node.getChildrens().get(0).getData(), globalTable);
+			tables = tableObj.getTables();
 					
 			currentEntry=entry.createEntry(node.getChildrens().get(0).getData(), SymTableEntryCategory.Class, currentTable);
 			globalTable.addEntry(currentEntry);
@@ -102,12 +110,12 @@ public class Semantic {
 			
 		case "varDecl":
 			
-			if (table.checkDeclInSameScope(currentTable, node.getChildrens().get(1).getData())) {
+			if (tableObj.checkDeclInSameScope(currentTable, node.getChildrens().get(1).getData())) {
 				
 				util.setMap(map);
-				lineNumber = table.searchRecord(currentTable, node.getChildrens().get(1).getData()).getLineNumber();
+				lineNumber = tableObj.searchRecord(currentTable, node.getChildrens().get(1).getData()).getLineNumber();
 				map = util.reportError(lineNumber, "Semantic Phase: variable ("+node.getChildrens().get(1).getData()+") is already declared in line ");
-			} else if (table.checkDeclInParentScope(currentTable, tables, node.getChildrens().get(1).getData()) || table.checkDeclInSuperClass(globalTable, currentTable, tables, node.getChildrens().get(1).getData())) {
+			} else if (tableObj.checkDeclInParentScope(currentTable, tables, node.getChildrens().get(1).getData()) || tableObj.checkDeclInSuperClass(globalTable, currentTable, tables, node.getChildrens().get(1).getData())) {
 				
 				util.setMap(map);
 				lineNumber = 0;
@@ -126,12 +134,12 @@ public class Semantic {
 			
 			String varName = node.getChildrens().get(1).getChildrens().get(0).getChildrens().get(0).getData();
 			
-			if (table.checkDeclInSameScope(currentTable, varName)) {
+			if (tableObj.checkDeclInSameScope(currentTable, varName)) {
 				
 				util.setMap(map);
-				lineNumber = table.searchRecord(currentTable, varName).getLineNumber();
+				lineNumber = tableObj.searchRecord(currentTable, varName).getLineNumber();
 				map = util.reportError(lineNumber, "Semantic Phase: variable ("+varName+") is already declared in line ");
-			} else if (table.checkDeclInParentScope(currentTable, tables, varName) || table.checkDeclInSuperClass(globalTable, currentTable, tables, varName)) {
+			} else if (tableObj.checkDeclInParentScope(currentTable, tables, varName) || tableObj.checkDeclInSuperClass(globalTable, currentTable, tables, varName)) {
 				
 				util.setMap(map);
 				lineNumber = 0;
@@ -148,9 +156,9 @@ public class Semantic {
 			
 		case "funcDecl":
 			
-			table.setTables(tables);
-			functionTable = table.createTable(node.getChildrens().get(1).getData(), currentTable);
-			tables = table.getTables();
+			tableObj.setTables(tables);
+			functionTable = tableObj.createTable(node.getChildrens().get(1).getData(), currentTable);
+			tables = tableObj.getTables();
 			
 			currentEntry=entry.createEntry(node.getChildrens().get(1).getData(), SymTableEntryCategory.Function, node.getChildrens().get(0).getData(), functionTable);
 			currentTable.addEntry(currentEntry);
@@ -168,7 +176,7 @@ public class Semantic {
 			
 		case "fParam":
 			
-			if (!table.checkDeclInSameScope(functionTable, node.getChildrens().get(1).getData())) {
+			if (!tableObj.checkDeclInSameScope(functionTable, node.getChildrens().get(1).getData())) {
 				
 				currentEntry=entry.createEntry(node.getChildrens().get(1).getData(), SymTableEntryCategory.Parameter, node.getChildrens().get(0).getData());
 				functionTable.addEntry(currentEntry);
@@ -177,22 +185,22 @@ public class Semantic {
 			
 		case "funcDef":
 			
-			table.setTables(tables);
+			tableObj.setTables(tables);
 			
 			switch (node.getChildrens().get(1).getNodeType()) {
 			case "scopeSpec":
 				
-				SymTable tempTable = table.findTable(node.getChildrens().get(2).getData());
+				SymTable tempTable = tableObj.findTable(node.getChildrens().get(2).getData());
 				int paramCount = node.getChildrens().get(3).getChildrens().size();
 				
-				if (tempTable == null || !table.validateParamsCount(tempTable, paramCount)) {
+				if (tempTable == null || !tableObj.validateParamsCount(tempTable, paramCount)) {
 					
 					util.setMap(map);
 					lineNumber = node.getChildrens().get(2).getLineNumber();
 					map = util.reportError(lineNumber, "Semantic Phase: Undeclared function ("+node.getChildrens().get(2).getData()+") in line ");
 					return;
 				} else {
-					currentTable = table.findTable(node.getChildrens().get(2).getData());
+					currentTable = tableObj.findTable(node.getChildrens().get(2).getData());
 					functionTable = currentTable;
 					// keeping note of functions that are declared but not defined
 					if (funcList.contains(node.getChildrens().get(2).getData())) {
@@ -204,8 +212,8 @@ public class Semantic {
 
 			default:
 				
-				currentTable = table.createTable(node.getChildrens().get(1).getData(), globalTable);
-				tables = table.getTables();
+				currentTable = tableObj.createTable(node.getChildrens().get(1).getData(), globalTable);
+				tables = tableObj.getTables();
 				
 				currentEntry=entry.createEntry(node.getChildrens().get(1).getData(), SymTableEntryCategory.Function, node.getChildrens().get(0).getData(), currentTable);
 				globalTable.addEntry(currentEntry);
@@ -216,9 +224,9 @@ public class Semantic {
 			
 		case "mainBody":
 			
-			table.setTables(tables);
-			currentTable = table.createTable("program", globalTable);
-			tables = table.getTables();
+			tableObj.setTables(tables);
+			currentTable = tableObj.createTable("program", globalTable);
+			tables = tableObj.getTables();
 			
 			currentEntry=entry.createEntry("program", SymTableEntryCategory.Function, currentTable);
 			globalTable.addEntry(currentEntry);
@@ -240,14 +248,30 @@ public class Semantic {
 			return;
 		}
 	
-		SymTable table = new SymTable();
-		Util util = new Util();
 		Integer lineNumber;
 		String type = "";
 		
 		String key = node.getNodeType();
 		
 		switch (key) {
+		case "classDecl":
+			
+			currentEntry = tableObj.searchRecord(globalTable, node.getChildrens().get(0).getData(), SymTableEntryCategory.Class);		
+			
+			break;
+		
+		case "inheritedList":
+			
+			for (int i = 0; i < node.getChildrens().size(); i++) {				
+				for (SymTableEntry tempEntry : globalTable.getEntries()) {
+					if (tempEntry.getName().equals(node.getChildrens().get(i).getData())) {
+						tableObj.setTables(tables);
+						currentEntry.addInheritedClass(tableObj.findTable(node.getChildrens().get(i).getData()));
+					}
+				}
+			}
+			break;
+			
 		case "varDecl":
 			
 			if (!validDeclTypes.contains(node.getChildrens().get(0).getData())) {
@@ -255,30 +279,32 @@ public class Semantic {
 				util.setMap(map);
 				lineNumber = node.getChildrens().get(1).getLineNumber();
 				map = util.reportError(lineNumber, "Semantic Phase: Invalid declaration type for variable ("+node.getChildrens().get(1).getData()+") in line ");
+				
+				tableObj.deleteRecord(currentTable, node.getChildrens().get(1).getData());
 			}
 			break;
 			
 		case "funcDef":
 			
-			table.setTables(tables);
+			tableObj.setTables(tables);
 			
 			switch (node.getChildrens().get(1).getNodeType()) {
 			case "scopeSpec":
 				
-				currentTable = table.findTable(node.getChildrens().get(2).getData());
+				currentTable = tableObj.findTable(node.getChildrens().get(2).getData());
 				break;
 
 			default:
 				
-				currentTable = table.findTable(node.getChildrens().get(1).getData());
+				currentTable = tableObj.findTable(node.getChildrens().get(1).getData());
 				break;
 			}			
 			break;
 
 		case "mainBody":
 			
-			table.setTables(tables);
-			currentTable = table.findTable("program");			
+			tableObj.setTables(tables);
+			currentTable = tableObj.findTable("program");			
 			break;
 			
 		case "assignStat":
@@ -312,7 +338,7 @@ public class Semantic {
 				break;
 			}
 			
-			String funcReturnType = table.searchRecord(currentTable.getParent(), currentTable.getTableName(), SymTableEntryCategory.Function).getType();
+			String funcReturnType = tableObj.searchRecord(currentTable.getParent(), currentTable.getTableName(), SymTableEntryCategory.Function).getType();
 			if (!type.isEmpty() && !type.equals(funcReturnType)) {
 				
 				util.setMap(map);
@@ -645,7 +671,6 @@ public class Semantic {
 	
 	public boolean aParamListNode(SymTable table, SymTable funcReferenceTble, AstNode node) {
 		
-		SymTable tableObj = new SymTable();
 		String type = "";
 		
 		for (int i = 0; i < node.getChildrens().size(); i++) {
@@ -716,8 +741,6 @@ public class Semantic {
 	
 	public String validateIndexListNode(SymTable table, SymTable programTable, AstNode node) {
 		
-		SymTable tableObj = new SymTable();
-		Util util = new Util();
 		String type = "";
 		String memberName = node.getChildrens().get(0).getData();
 		
@@ -749,8 +772,6 @@ public class Semantic {
 	
 	public String classMembers(boolean isMemberFunction, AstNode node, SymTable table, SymTable programTable) {
 		
-		SymTable tableObj = new SymTable();
-		Util util = new Util();
 		String type = "";
 		
 		if (isMemberFunction) {
@@ -791,7 +812,7 @@ public class Semantic {
 		return type;
 	}
 	
-	public void validateInheritance(AstNode node) {
+/*	public void validateInheritance(AstNode node) {
 		
 		if(node.getChildrens().size() == 0) {
 			return;
@@ -828,12 +849,10 @@ public class Semantic {
 		for (AstNode child : childrens) { 
 			validateInheritance(child);
 		}
-	}
+	}*/
 	
 	public String isFreeFunction(SymTable table, AstNode node) {
 		
-		SymTable tableObj = new SymTable();
-		Util util = new Util();
 		String type = "";
 		tableObj.setTables(tables);
 		
@@ -874,8 +893,6 @@ public class Semantic {
 	
 	public String isClassMember(SymTable table, AstNode node) {
 		
-		SymTable tableObj = new SymTable();
-		Util util = new Util();
 		String type = "";
 		tableObj.setTables(tables);
 		
@@ -906,8 +923,6 @@ public class Semantic {
 	
 	public String isArray(SymTable table, AstNode node) {
 		
-		SymTable tableObj = new SymTable();
-		Util util = new Util();
 		String type = "";
 		tableObj.setTables(tables);
 		
@@ -945,8 +960,6 @@ public class Semantic {
 	
 	public String isLocalVariable(SymTable table, AstNode node) {
 		
-		SymTable tableObj = new SymTable();
-		Util util = new Util();
 		String type = "";
 		tableObj.setTables(tables);
 		
@@ -965,39 +978,103 @@ public class Semantic {
 		return type;
 	}
 	
+	public void calculateMemorySize() {
+		
+		int size;
+		int offset;
+		int cellCount = 1;
+		String type = "";
+		
+		for (SymTableEntry globalEntry : globalTable.getEntries()) {
+			
+			SymTable current = tableObj.findTable(globalEntry.getName());
+			offset = 0;
+			
+			for (SymTableEntry localEntry : current.getEntries()) {
+				
+				type = localEntry.getType();
+				if (localEntry.getArraySizeList().size() > 0) {
+					cellCount = calculateMemoryCells(localEntry, type);
+				}
+				
+				size = cellCount*variableSize(type);
+				
+				localEntry.setSize(Integer.toString(size));
+				offset+=size;
+				localEntry.setOffset("-"+Integer.toString(offset));
+				
+			}
+			
+			globalEntry.setSize(Integer.toString(offset));
+		}
+	}
+	
+	public int calculateMemoryCells(SymTableEntry entry, String type) {
+		
+		int cellCount = 1;
+		ArrayList<String> arrayList = entry.getArraySizeList();
+		
+		for (int i = 0; i < arrayList.size(); i++) {
+			cellCount = cellCount*Integer.parseInt(arrayList.get(i));
+		}
+		
+		return cellCount;
+	}
+	
+	public int variableSize(String type) {
+		
+		int size = 0; 
+		
+		switch (type) {
+		case "int":
+			size = 4;
+			break;
+			
+		case "float":
+			size = 8;
+			break;
+
+		default:
+			SymTableEntry entry = tableObj.searchRecord(globalTable, type);
+			if (entry != null) {		size = Integer.parseInt(entry.getSize());	}			
+			break;
+		}
+		
+		return size;		
+	}
+	
 	public void printTable(SymTable table) {
 		
-		if(table.getEntries().size() == 0) {
-
-			return;
-		}
+		if(table.getEntries().size() == 0) {	return;	}
 		
 		ArrayList<SymTableEntry> current = table.getEntries();
 		String toprint = "";
 		for (int i = 0; i < current.size(); i++) {
 			
-			toprint = String.format("%-20s" , current.get(i).getName());
-			toprint += String.format("%-20s" , " | "+current.get(i).getCategory());
-			toprint += String.format("%-20s" , (current.get(i).getType() == null ? " | " : " | "+current.get(i).getType()));
-			toprint += String.format("%-20s" , (current.get(i).getLink() == null ? " | " : " | "+current.get(i).getLink().getTableName()));
+			toprint = String.format("%-16s" , current.get(i).getName());
+			toprint += String.format("%-16s" , " | "+current.get(i).getCategory());
+			toprint += String.format("%-16s" , (current.get(i).getType() == null ? " | " : " | "+current.get(i).getType()));
+			toprint += String.format("%-16s" , (current.get(i).getLink() == null ? " | " : " | "+current.get(i).getLink().getTableName()));
 			if (current.get(i).getInheritedClassList().size() == 0) {
-				toprint += String.format("%-20s" , " | ");
+				toprint += String.format("%-16s" , " | ");
 			} else {
 				String classList = "";
 				for (SymTable inherited : current.get(i).getInheritedClassList()) {
 					classList+=inherited.getTableName()+", ";
 				}
-				toprint += String.format("%-20s" , " | "+classList.substring(0, classList.length() - 2));
+				toprint += String.format("%-16s" , " | "+classList.substring(0, classList.length() - 2));
 			}
 			if (current.get(i).getArraySizeList().size() == 0) {
-				toprint += String.format("%-20s" , " | ");
+				toprint += String.format("%-16s" , " | ");
 			} else {
 				String arraySizeList = "";
 				for (String arraySize : current.get(i).getArraySizeList()) {
 					arraySizeList+="["+arraySize+"]";
 				}
-				toprint += String.format("%-20s" , " | "+arraySizeList);
+				toprint += String.format("%-16s" , " | "+arraySizeList);
 			}
+			toprint += String.format("%-16s" , (current.get(i).getSize() == null ? " | " : " | "+current.get(i).getSize()));
+			toprint += String.format("%-16s" , (current.get(i).getOffset() == null ? " | " : " | "+current.get(i).getOffset()));
 			
 			System.out.println(toprint);
 			recordSymbolTables.add(toprint);
@@ -1006,25 +1083,24 @@ public class Semantic {
 	}
 	
 	public void print(SymTable table) {
-		System.out.println("=========================================================================================================================");
-		recordSymbolTables.add("=========================================================================================================================");
+		System.out.println("==================================================================================================================================");
+		recordSymbolTables.add("==================================================================================================================================");
 		String toprint = String.format("%-60s", " TableName: "+table.getTableName());
 		toprint+=String.format("%60s", (table.getParent() == null ? " " : "Parent: "+table.getParent().getTableName()));
 		System.out.println(toprint);
 		recordSymbolTables.add(toprint);
-		System.out.println("=========================================================================================================================");
-		recordSymbolTables.add("=========================================================================================================================");
-		System.out.println(" Name                | Category          | Type              | Link (Table Name) | InheritedList     | ArraySizeList     ");
-		recordSymbolTables.add(" Name                | Category          | Type              | Link (Table Name) | InheritedList     | ArraySizeList     ");
-		System.out.println("=========================================================================================================================");
-		recordSymbolTables.add("=========================================================================================================================");
+		System.out.println("==================================================================================================================================");
+		recordSymbolTables.add("==================================================================================================================================");
+		System.out.println(" Name            | Category      | Type          | Link          | InheritedList | ArraySizeList | Memory Size   | Offset        ");
+		recordSymbolTables.add(" Name            | Category      | Type          | Link          | InheritedList | ArraySizeList | Memory Size   | Offset        ");
+		System.out.println("==================================================================================================================================");
+		recordSymbolTables.add("==================================================================================================================================");
 		printTable(table);
-		System.out.println("=========================================================================================================================");
-		recordSymbolTables.add("=========================================================================================================================");
+		System.out.println("==================================================================================================================================");
+		recordSymbolTables.add("==================================================================================================================================");
 		for (int i = 0; i < 4; i++) {
 			System.out.println();
 			recordSymbolTables.add("");
 		}
 	}
-	
 }

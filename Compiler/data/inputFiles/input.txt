@@ -1,26 +1,11 @@
-
-class A {
-    int xyz;
-    int calculate(int a, int b);
-};
-
-int A :: calculate (int a, int b) {
-    int result;
-    result = a*(a+b);
-    return (result);
-};
-
-int b(int a, int b) {
-    int result;
-    return (result);
-};
-
 program {
-    int maxValue;
-    int array[100];
-    int n;
+    int a;
     int b;
-    A abc;
-    maxValue=b(10,2);
-    abc.xyz = 10;
+    int c;
+    a = 2;
+    b = 34;
+    //c = a + b;
+    //c = a + b * a;
+    c = b;
+    put(c);
 };

@@ -4,6 +4,8 @@
 package compiler.driver;
 
 import java.io.IOException;
+
+import compiler.code_generation.CodeGeneration;
 import compiler.lexical.Tokenizer;
 import compiler.sematic.Semantic;
 import compiler.syntactic.Parser;
@@ -24,5 +26,6 @@ public class Driver {
     	Tokenizer.lexicalAnalyzer();
     	Parser.parser();
     	new Semantic().initializeSematicAnalysis();
+    	new CodeGeneration().intializeCodeGeneration();
     }
 }

@@ -37,6 +37,7 @@ public class DataReadWrite {
 	private static final String FOLLOWSETS_FILE_PATH = "data/inputFiles/followSets.txt";
 	private static final String DERIVATION_FILE_PATH = "data/outputFiles/derivation.txt";
 	private static final String SYMTABLE_FILE_PATH = "data/outputFiles/sym-table.txt";
+	private static final String MOONCODE_FILE_PATH = "data/outputFiles/moon/moon-code.m";
 	
 	/**
 	 * Reads the input and omits the the slash-slash and slash-star comments
@@ -382,6 +383,23 @@ public class DataReadWrite {
 				write.write(string);
 				write.newLine();
 			}
+			
+		} catch (Exception e) {
+	
+			e.printStackTrace();
+		} finally {
+	
+			write.close();
+		}
+	
+	}
+	
+	public static void writeMoonCode(String moonCode) throws IOException {
+		
+		write = new BufferedWriter(new FileWriter(new File(MOONCODE_FILE_PATH)));
+		try {
+	
+			write.write(moonCode);
 			
 		} catch (Exception e) {
 	

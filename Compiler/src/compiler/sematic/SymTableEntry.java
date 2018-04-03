@@ -13,6 +13,8 @@ public class SymTableEntry {
 	private Integer lineNumber;
 	private ArrayList<SymTable> inheritedClassList;
 	private ArrayList<String> arraySizeList;
+	private String size;
+	private String offset;
 
 	public SymTableEntry() {
 		name = null;
@@ -22,6 +24,8 @@ public class SymTableEntry {
 		lineNumber = null;
 		inheritedClassList = new ArrayList<SymTable>();
 		arraySizeList = new ArrayList<String>();
+		size = null;
+		offset = null;
 	}
 	
 	public SymTableEntry(String name, SymTableEntryCategory category, String type) {
@@ -123,6 +127,22 @@ public class SymTableEntry {
 		arraySizeList.add(arraySize);
 	}
 	
+	public String getSize() {
+		return size;
+	}
+
+	public void setSize(String size) {
+		this.size = size;
+	}
+
+	public String getOffset() {
+		return offset;
+	}
+
+	public void setOffset(String offset) {
+		this.offset = offset;
+	}
+
 	public SymTableEntry createEntry(String name, SymTableEntryCategory category, String type) {
 		
 		SymTableEntry entry = new SymTableEntry(name, category, type);

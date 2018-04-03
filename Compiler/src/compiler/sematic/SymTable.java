@@ -122,6 +122,17 @@ public class SymTable {
 		return null;						
 	}
 	
+	public void deleteRecord(SymTable table, String name) {
+		
+		ArrayList<SymTableEntry> current = table.getEntries();
+		
+		for (int i = 0; i < current.size(); i++) {
+			if (current.get(i).getName().equals(name)) {
+				current.remove(i);
+			}
+		}
+	}
+	
 	public boolean checkDeclInSameScope(SymTable table, String name) {
 		
 		if (searchRecord(table, name) != null) {

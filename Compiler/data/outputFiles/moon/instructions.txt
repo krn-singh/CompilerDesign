@@ -1,0 +1,10 @@
+1. Open terminal and go to the directory that contains moon folder
+2. Run the following command:
+	gcc -o moon moon.c
+
+	where, "moon" is user-defined name
+
+3. Run the following command:
+	./moon moon-code.m
+
+	where, "moon-code.m" contains the moon code instructions
