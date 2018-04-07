@@ -812,45 +812,6 @@ public class Semantic {
 		return type;
 	}
 	
-/*	public void validateInheritance(AstNode node) {
-		
-		if(node.getChildrens().size() == 0) {
-			return;
-		}
-		
-		SymTable table = new SymTable();
-		String key = node.getNodeType();
-		
-		switch (key) {
-
-		case "classDecl":
-			
-			currentEntry = table.searchRecord(globalTable, node.getChildrens().get(0).getData(), SymTableEntryCategory.Class);		
-			
-			break;
-		
-		case "inheritedList":
-			
-			for (int i = 0; i < node.getChildrens().size(); i++) {				
-				for (SymTableEntry tempEntry : globalTable.getEntries()) {
-					if (tempEntry.getName().equals(node.getChildrens().get(i).getData())) {
-						table.setTables(tables);
-						currentEntry.addInheritedClass(table.findTable(node.getChildrens().get(i).getData()));
-					}
-				}
-			}
-			break;
-
-		default:
-			break;
-		}
-		
-		LinkedList<AstNode> childrens = node.getChildrens();
-		for (AstNode child : childrens) { 
-			validateInheritance(child);
-		}
-	}*/
-	
 	public String isFreeFunction(SymTable table, AstNode node) {
 		
 		String type = "";

@@ -27,8 +27,3 @@
          jr     r15             % Return
 
  data    dw     1000, -35
-
-
-
-
-
