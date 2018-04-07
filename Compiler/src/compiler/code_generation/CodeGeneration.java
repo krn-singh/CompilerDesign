@@ -41,7 +41,7 @@ public class CodeGeneration {
 		tables = Semantic.getTables();
 		moonExecCode = new String();
 		moonCodeIndent = new String("				");
-		moonTagBlock = new String();
+		moonTagBlock = "";
 		registerPool = new Stack<String>();
 		
 		tableObj.setTables(tables);
@@ -96,23 +96,32 @@ public class CodeGeneration {
 		String localRegister;
 		// offset value of the variable in the symbol table
 		String offset;
+		// the size of current function in the memory
+		int funcSize;
+		// reserving memory for storing temporary values
+		int bufferSize1 = 4;
+		// reserving memory for storing instruction address
+		int bufferSize2 = 4;
 		String key = node.getNodeType();
 		
 		switch (key) {
 		case "funcDef":			
+			
 			switch (node.getChildrens().get(1).getNodeType()) {
 			case "scopeSpec":
 				currentTable = tableObj.findTable(node.getChildrens().get(2).getData());
+				funcSize = Integer.parseInt(tableObj.searchRecord(globalTable, currentTable.getTableName()).getSize());
+				offset = Integer.toString(funcSize+bufferSize1+bufferSize2);
 				// defining the function tag for passing control during the moon code execution
-				moonTagBlock += "f_"+node.getChildrens().get(2).getData();
-				moonExecCode += moonTagBlock;
+				moonExecCode += "f_"+node.getChildrens().get(2).getData()+"				sw -"+offset+"(r14), r15\n";
 				break;
 
 			default:				
 				currentTable = tableObj.findTable(node.getChildrens().get(1).getData());
+				funcSize = Integer.parseInt(tableObj.searchRecord(globalTable, currentTable.getTableName()).getSize());
+				offset = Integer.toString(funcSize+bufferSize1+bufferSize2);
 				// defining the function tag for passing control during the moon code execution
-				moonTagBlock += "f_"+node.getChildrens().get(1).getData();
-				moonExecCode += moonTagBlock;
+				moonExecCode += "f_"+node.getChildrens().get(1).getData()+"				sw -"+offset+"(r14), r15\n";
 				break;
 			}			
 			break;
@@ -139,6 +148,9 @@ public class CodeGeneration {
 			localRegister = registerPool.pop();
 			moonExecCode += moonCodeIndent +"lw "+localRegister+", "+offset+"(r14)		% loading variable value in register\n";
 			moonExecCode += moonCodeIndent +"sw temp_var(r0), "+localRegister+"	% store the return value in a temporary variable\n";
+			funcSize = Integer.parseInt(tableObj.searchRecord(globalTable, currentTable.getTableName()).getSize());
+			offset = Integer.toString(funcSize+bufferSize1+bufferSize2);
+			moonExecCode += moonCodeIndent +"lw r15, -"+offset+"(r14)\n";
 			moonExecCode += moonCodeIndent +"jr r15			% jump back to the calling function\n";
 			registerPool.push(localRegister);
 			break;
@@ -157,7 +169,7 @@ public class CodeGeneration {
 			registerPool.push(localRegister);
 			traverseAst(node.getChildrens().get(1));
 			moonExecCode += moonCodeIndent +"j end_if			% end if-else block\n";
-			moonTagBlock += "else_block";
+			moonTagBlock = "else_block";
 			moonExecCode += moonTagBlock;
 			traverseAst(node.getChildrens().get(2));
 			moonExecCode += moonCodeIndent +"end_if nop\n";			
@@ -165,7 +177,7 @@ public class CodeGeneration {
 			
 		case "forStat":
 			traverseAst(node.getChildrens().get(1));
-			moonTagBlock += "for_loop";
+			moonTagBlock = "for_loop";
 			moonExecCode += moonTagBlock;
 			localRegister = relOp(node.getChildrens().get(2));
 			moonExecCode += moonCodeIndent +"bz "+localRegister+", end_for		% end for loop\n";
@@ -267,7 +279,9 @@ public class CodeGeneration {
 		int funcSize = Integer.parseInt(tableObj.searchRecord(globalTable, currentTable.getTableName()).getSize());
 		int paramSize = 0;
 		// reserving memory for storing temporary values
-		int bufferSize = 4;
+		int bufferSize1 = 4;
+		// reserving memory for storing instruction address
+		int bufferSize2 = 4;
 		// symbol table of the function to be called
 		SymTable funcReferenceTble = tableObj.findTable(node.getChildrens().get(0).getData());
 		int paramCount = node.getChildrens().get(1).getChildrens().get(0).getChildrens().size();
@@ -276,18 +290,18 @@ public class CodeGeneration {
 			offset = varNode(node.getChildrens().get(1).getChildrens().get(0).getChildrens().get(i));
 			moonExecCode += moonCodeIndent +"lw "+localRegister+", "+offset+"(r14)		% loading variable value in register\n";
 			paramSize = Math.abs(Integer.parseInt(funcReferenceTble.getEntries().get(i).getOffset()));
-			moonExecCode += moonCodeIndent + "sw -"+Integer.toString(funcSize+bufferSize+paramSize)+"(r14), "+localRegister+"		% passing argument to the function parameter\n";
+			moonExecCode += moonCodeIndent + "sw -"+Integer.toString(funcSize+bufferSize1+bufferSize2+paramSize)+"(r14), "+localRegister+"		% passing argument to the function parameter\n";
 		}
 		
-		offset = Integer.toString(funcSize+bufferSize);
+		offset = Integer.toString(funcSize+bufferSize1+bufferSize2);
 		moonExecCode += moonCodeIndent + "addi r14, r14, -"+offset+"	% updating the stack pointer for the function call\n";
 		moonExecCode += moonCodeIndent + "jl r15, f_"+funcReferenceTble.getTableName()+"		% function call\n";
 		moonExecCode += moonCodeIndent + "subi r14, r14, -"+offset+"	% updating the stack pointer for the function call\n";
 		moonExecCode += moonCodeIndent +"lw "+localRegister+", temp_var(r0)	% value returned by function\n";
-		moonExecCode += moonCodeIndent + "sw -"+offset+"(r14), "+localRegister+"		% storing the returned value\n";
+		moonExecCode += moonCodeIndent + "sw -"+Integer.toString(funcSize+bufferSize1)+"(r14), "+localRegister+"		% storing the returned value\n";
 		registerPool.push(localRegister);
 		
-		return "-"+offset;
+		return "-"+Integer.toString(funcSize+bufferSize1);
 	}
 	
 	/**
