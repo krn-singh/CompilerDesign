@@ -1,4 +1,4 @@
-package compiler.constants;
+package constants;
 
 /**
  * Contains all the enums and other constants required for the compiler

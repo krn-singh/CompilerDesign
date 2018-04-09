@@ -1,4 +1,4 @@
-package compiler.helper;
+package helper;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.TreeMap;
 
-import compiler.lexical.Token;
+import lexical.Token;
 
 /**
  * class acts as a medium between lexical analyzer and the data files.

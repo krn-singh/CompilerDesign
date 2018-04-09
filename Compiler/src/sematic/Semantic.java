@@ -1,15 +1,15 @@
-package compiler.sematic;
+package sematic;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Map;
 
-import compiler.constants.CompilerEnum.SymTableEntryCategory;
-import compiler.helper.DataReadWrite;
-import compiler.helper.Util;
-import compiler.syntactic.AstNode;
-import compiler.syntactic.Parser;
+import constants.CompilerEnum.SymTableEntryCategory;
+import helper.DataReadWrite;
+import helper.Util;
+import syntactic.AstNode;
+import syntactic.Parser;
 
 public class Semantic {
 	
@@ -49,10 +49,9 @@ public class Semantic {
 	
 	public void semanticAnalysis() throws IOException {
 
-		System.out.println("Starting Semantic Analysis phase..........");		
-		
+		System.out.println("Starting Semantic Analysis phase..........\n");		
+		System.out.println();
 		phaseOne(root);
-		//validateInheritance(root);
 		phaseTwo(root);
 		calculateMemorySize();
 		
@@ -751,8 +750,6 @@ public class Semantic {
 		
 		String type = "";
 		String memberName = node.getChildrens().get(0).getData();
-		
-		System.out.println(table.getTableName()+"--"+memberName);
 		
 		if (!tableObj.checkDeclInSameScope(table, memberName) && !tableObj.checkDeclInSuperClass(globalTable, table, tables, memberName)) {
 			

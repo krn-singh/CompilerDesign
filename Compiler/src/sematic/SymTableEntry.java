@@ -1,8 +1,8 @@
-package compiler.sematic;
+package sematic;
 
 import java.util.ArrayList;
 
-import compiler.constants.CompilerEnum.SymTableEntryCategory;
+import constants.CompilerEnum.SymTableEntryCategory;
 
 public class SymTableEntry {
 

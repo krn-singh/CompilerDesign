@@ -1,14 +1,16 @@
 /**
  * The driver package holds the main driver
  */
-package compiler.driver;
+package driver;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Map;
 
-import compiler.code_generation.CodeGeneration;
-import compiler.lexical.Tokenizer;
-import compiler.sematic.Semantic;
-import compiler.syntactic.Parser;
+import code_generation.CodeGeneration;
+import lexical.Tokenizer;
+import sematic.Semantic;
+import syntactic.Parser;
 
 /**
  * The driver holds the main method too launch the compiler
@@ -16,6 +18,8 @@ import compiler.syntactic.Parser;
  * @version 1.0
  */
 public class Driver {
+	
+	private static Map<Integer, ArrayList<String>> map;
 
 	/**
 	 * Main Method. the lexical analyzer is initiated here.
@@ -26,6 +30,9 @@ public class Driver {
     	Tokenizer.lexicalAnalyzer();
     	Parser.parser();
     	new Semantic().initializeSematicAnalysis();
-    	new CodeGeneration().intializeCodeGeneration();
+    	map = Semantic.getMap();
+    	
+    	if (map.size() == 0) {	new CodeGeneration().intializeCodeGeneration();								 } 
+    	else 				 {	System.out.println("Unable to generate code. Please check the error log file");}    	
     }
 }

@@ -1,8 +1,7 @@
-package compiler.syntactic;
+package syntactic;
 
 import java.util.LinkedList;
 
-import compiler.visitors.Visitor;
 
 public class AstNode {
 
@@ -108,9 +107,5 @@ public class AstNode {
     	System.out.println("================================================================================================");
     	astTraversel(root);
     	System.out.println("================================================================================================");
-    }
-    
-    public void accept(Visitor visitor) {
-    		visitor.visit(this);
     }
 }

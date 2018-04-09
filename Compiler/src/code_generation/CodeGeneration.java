@@ -1,17 +1,15 @@
-package compiler.code_generation;
+package code_generation;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.Stack;
 
-import compiler.helper.DataReadWrite;
-import compiler.sematic.Semantic;
-import compiler.sematic.SymTable;
-import compiler.sematic.SymTableEntry;
-import compiler.syntactic.AstNode;
-import compiler.syntactic.Parser;
+import helper.DataReadWrite;
+import sematic.Semantic;
+import sematic.SymTable;
+import sematic.SymTableEntry;
+import syntactic.AstNode;
+import syntactic.Parser;
 
 /**
  * Generate moon code for the source code using a stack-based model.
@@ -21,7 +19,6 @@ public class CodeGeneration {
 	
 	private AstNode root;
 	private LinkedList<SymTable> tables;
-	public static Map<Integer, ArrayList<String>> map;
 	private SymTable tableObj = new SymTable();
 	private SymTable globalTable;
 	private SymTable currentTable;
@@ -36,7 +33,6 @@ public class CodeGeneration {
 	 */
 	public void intializeCodeGeneration() throws IOException {
 		
-		map = Semantic.getMap();
 		root = Parser.getRoot();
 		tables = Semantic.getTables();
 		moonExecCode = new String();

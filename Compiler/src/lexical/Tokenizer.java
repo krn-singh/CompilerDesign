@@ -1,4 +1,4 @@
-package compiler.lexical;
+package lexical;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import compiler.constants.CompilerEnum.TokenType;
-import compiler.constants.CompilerEnum.TokenValue;
-import compiler.helper.DataReadWrite;
-import compiler.helper.Util;
+import constants.CompilerEnum.TokenType;
+import constants.CompilerEnum.TokenValue;
+import helper.DataReadWrite;
+import helper.Util;
 
 /**
  * Generating tokens from the source code

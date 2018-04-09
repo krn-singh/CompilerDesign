@@ -1,4 +1,4 @@
-package compiler.syntactic;
+package syntactic;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -9,12 +9,12 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.TreeMap;
 
-import compiler.constants.CompilerEnum;
-import compiler.constants.CompilerEnum.TokenType;
-import compiler.helper.DataReadWrite;
-import compiler.helper.Util;
-import compiler.lexical.Token;
-import compiler.lexical.Tokenizer;
+import constants.CompilerEnum;
+import constants.CompilerEnum.TokenType;
+import helper.DataReadWrite;
+import helper.Util;
+import lexical.Token;
+import lexical.Tokenizer;
 
 public class Parser {
 
