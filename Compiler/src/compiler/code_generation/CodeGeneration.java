@@ -110,7 +110,7 @@ public class CodeGeneration {
 			switch (node.getChildrens().get(1).getNodeType()) {
 			case "scopeSpec":
 				currentTable = tableObj.findTable(node.getChildrens().get(2).getData());
-				funcSize = Integer.parseInt(tableObj.searchRecord(globalTable, currentTable.getTableName()).getSize());
+				funcSize = currentTable.getTableSize();
 				offset = Integer.toString(funcSize+bufferSize1+bufferSize2);
 				// defining the function tag for passing control during the moon code execution
 				moonExecCode += "f_"+node.getChildrens().get(2).getData()+"				sw -"+offset+"(r14), r15\n";
@@ -148,7 +148,7 @@ public class CodeGeneration {
 			localRegister = registerPool.pop();
 			moonExecCode += moonCodeIndent +"lw "+localRegister+", "+offset+"(r14)		% loading variable value in register\n";
 			moonExecCode += moonCodeIndent +"sw temp_var(r0), "+localRegister+"	% store the return value in a temporary variable\n";
-			funcSize = Integer.parseInt(tableObj.searchRecord(globalTable, currentTable.getTableName()).getSize());
+			funcSize = currentTable.getTableSize();
 			offset = Integer.toString(funcSize+bufferSize1+bufferSize2);
 			moonExecCode += moonCodeIndent +"lw r15, -"+offset+"(r14)\n";
 			moonExecCode += moonCodeIndent +"jr r15			% jump back to the calling function\n";
@@ -182,10 +182,10 @@ public class CodeGeneration {
 			localRegister = relOp(node.getChildrens().get(2));
 			moonExecCode += moonCodeIndent +"bz "+localRegister+", end_for		% end for loop\n";
 			registerPool.push(localRegister);
-			traverseAst(node.getChildrens().get(3));
 			traverseAst(node.getChildrens().get(4));
+			traverseAst(node.getChildrens().get(3));
 			moonExecCode += moonCodeIndent +"j for_loop			% iterate the for loop\n";	
-			moonExecCode += moonCodeIndent +"end_for nop\n";			
+			moonExecCode += "end_for 				nop\n";			
 			return;
 						
 		default:
@@ -313,8 +313,58 @@ public class CodeGeneration {
 		
 		// offset value of the variable in the symbol table
 		String offset = "";
+		// index node
+		AstNode indexNode = node.getChildrens().get(1);
+		// the size of current function in the memory
+		int funcSize = Integer.parseInt(tableObj.searchRecord(globalTable, currentTable.getTableName()).getSize());
+		// reserving memory for storing temporary values
+		int bufferSize1 = 4;
 		
-		return offset;
+		// control enters the if block if the class member is a function
+		// and for member variables it enters the else block
+		if (indexNode.getChildrens().size() > 1) {
+			
+			String localRegister = registerPool.pop();
+			// number of parameters
+			int paramSize = 0;
+			// reserving memory for storing instruction address
+			int bufferSize2 = 4;		
+			// symbol table of the function to be called
+			SymTable funcReferenceTble = tableObj.findTable(indexNode.getChildrens().get(0).getData());
+			int paramCount = indexNode.getChildrens().get(1).getChildrens().size();
+			
+			for (int i = 0; i < paramCount; i++) {
+				offset = varNode(indexNode.getChildrens().get(1).getChildrens().get(i));
+				moonExecCode += moonCodeIndent +"lw "+localRegister+", "+offset+"(r14)		% loading variable value in register\n";
+				paramSize = Math.abs(Integer.parseInt(funcReferenceTble.getEntries().get(i).getOffset()));
+				moonExecCode += moonCodeIndent + "sw -"+Integer.toString(funcSize+bufferSize1+bufferSize2+paramSize)+"(r14), "+localRegister+"		% passing argument to the function parameter\n";
+			}
+			
+			offset = Integer.toString(funcSize+bufferSize1+bufferSize2);
+			moonExecCode += moonCodeIndent + "addi r14, r14, -"+offset+"	% updating the stack pointer for the function call\n";
+			moonExecCode += moonCodeIndent + "jl r15, f_"+funcReferenceTble.getTableName()+"		% function call\n";
+			moonExecCode += moonCodeIndent + "subi r14, r14, -"+offset+"	% updating the stack pointer for the function call\n";
+			moonExecCode += moonCodeIndent +"lw "+localRegister+", temp_var(r0)	% value returned by function\n";
+			moonExecCode += moonCodeIndent + "sw -"+Integer.toString(funcSize+bufferSize1)+"(r14), "+localRegister+"		% storing the returned value\n";
+			registerPool.push(localRegister);
+			
+		} else {
+			// symbol table entry of the variable
+			SymTableEntry entry = tableObj.searchRecord(currentTable, node.getChildrens().get(0).getData());
+			// the size of variable
+			int varSize = Integer.parseInt(entry.getSize());
+			// memory offset of the variable
+			int varOffset = Math.abs(Integer.parseInt(entry.getOffset()));
+			SymTable classTable = tableObj.findTable(tableObj.searchRecord(currentTable, node.getChildrens().get(0).getData()).getType());
+			classTable = tableObj.searchInSuperClass(globalTable, classTable, tables, indexNode.getChildrens().get(0).getData());
+			// symbol table entry of the variable
+			entry = tableObj.searchRecord(classTable, indexNode.getChildrens().get(0).getData());
+			
+			int memoryOffset = Math.abs(Integer.parseInt(entry.getOffset()));
+			return "-"+Integer.toString(varOffset - varSize + memoryOffset);
+		}
+		
+		return "-"+Integer.toString(funcSize+bufferSize1);
 	}
 	
 	/**
@@ -326,6 +376,27 @@ public class CodeGeneration {
 		
 		// offset value of the variable in the symbol table
 		String offset = "";
+		// Symbol table entry of the variable
+		SymTableEntry entry = tableObj.searchRecord(currentTable, node.getChildrens().get(0).getData());
+		// the size of variable
+		int varSize = Integer.parseInt(entry.getSize());
+		// memory offset of the variable
+		int varOffset = Math.abs(Integer.parseInt(entry.getOffset()));
+		// index node
+		AstNode indexNode = node.getChildrens().get(1).getChildrens().get(0);
+		
+		switch (node.getChildrens().get(1).getChildrens().get(0).getNodeType()) {
+		case "numNode":
+			offset = "-"+Integer.toString((varOffset - varSize + 4) + (Integer.parseInt(indexNode.getData()) * 4));
+			break;
+			
+		case "var":
+			offset = varNode(indexNode);
+			break;
+			
+		default:
+			break;
+		}		
 		
 		return offset;
 	}

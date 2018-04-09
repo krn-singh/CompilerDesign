@@ -731,6 +731,14 @@ public class Semantic {
 				}
 				break;
 				
+			case "multOp":
+				
+				type = multOpNode(table, node.getChildrens().get(i));
+				if (type.isEmpty() || !type.equals("int")) {
+					return false;
+				}
+				break;
+				
 			default:
 				break;
 			}			
@@ -954,19 +962,45 @@ public class Semantic {
 			for (SymTableEntry localEntry : current.getEntries()) {
 				
 				type = localEntry.getType();
-				if (localEntry.getArraySizeList().size() > 0) {
-					cellCount = calculateMemoryCells(localEntry, type);
+				if (localEntry.getCategory() == SymTableEntryCategory.Variable || localEntry.getCategory() == SymTableEntryCategory.Parameter) {
+					
+					if (localEntry.getArraySizeList().size() > 0) {
+						cellCount = calculateMemoryCells(localEntry, type);
+					}
+					
+					size = cellCount*variableSize(type);
+					cellCount = 1;
+					localEntry.setSize(Integer.toString(size));
+					offset+=size;
+					localEntry.setOffset("-"+Integer.toString(offset));
+				} else if (localEntry.getCategory() == SymTableEntryCategory.Function) {
+					// control enters this loop if the entry in a symbol table is a function
+					SymTable membFunc = tableObj.findTable(localEntry.getName());
+					int tempOffset = 0;
+					
+					for (SymTableEntry tempLocalEntry : membFunc.getEntries()) {
+						
+						type = tempLocalEntry.getType();
+						if (tempLocalEntry.getCategory() == SymTableEntryCategory.Variable || tempLocalEntry.getCategory() == SymTableEntryCategory.Parameter) {
+							
+							if (tempLocalEntry.getArraySizeList().size() > 0) {
+								cellCount = calculateMemoryCells(tempLocalEntry, type);
+							}
+							
+							size = cellCount*variableSize(type);
+							cellCount = 1;
+							tempLocalEntry.setSize(Integer.toString(size));
+							tempOffset+=size;
+							tempLocalEntry.setOffset("-"+Integer.toString(tempOffset));
+						}
+					}
+					
+					membFunc.setTableSize(tempOffset);
 				}
-				
-				size = cellCount*variableSize(type);
-				
-				localEntry.setSize(Integer.toString(size));
-				offset+=size;
-				localEntry.setOffset("-"+Integer.toString(offset));
-				
 			}
 			
 			globalEntry.setSize(Integer.toString(offset));
+			current.setTableSize(offset);
 		}
 	}
 	

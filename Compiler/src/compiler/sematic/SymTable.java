@@ -12,10 +12,12 @@ public class SymTable {
 	private SymTable globalTable = null;
 	private LinkedList<SymTable> tables = new LinkedList<SymTable>();
 	private SymTable parent = null;
+	private Integer tableSize = null;
 	
 	public SymTable() {
 		tableName = null;
 		parent = null;
+		tableSize = null;
 		entries = new ArrayList<SymTableEntry>();
 	}
 	
@@ -23,6 +25,7 @@ public class SymTable {
 		tableName = name;
 		entries = new ArrayList<SymTableEntry>();
 		this.parent = parent;
+		tableSize = 0;
 	}
 	
 	public void addEntry(SymTableEntry entry) {
@@ -55,6 +58,14 @@ public class SymTable {
 
 	public void addTables(SymTable table) {
 		tables.add(table);
+	}
+
+	public Integer getTableSize() {
+		return tableSize;
+	}
+
+	public void setTableSize(Integer tableSize) {
+		this.tableSize = tableSize;
 	}
 
 	public SymTable createGlobalTable() {
