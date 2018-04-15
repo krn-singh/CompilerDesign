@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Stack;
 
+import constants.CompilerEnum.MoonLib;
 import helper.DataReadWrite;
 import sematic.Semantic;
 import sematic.SymTable;
@@ -58,7 +59,7 @@ public class CodeGeneration {
 		
 		// create a pool of registers as a stack of Strings
 		// assuming only r1, ..., r12 are available
-		for (Integer i = 12; i > 0; i--) {
+		for (Integer i = 12; i > 1; i--) {
 			registerPool.push("r"+i.toString());
 		}
 		
@@ -67,7 +68,9 @@ public class CodeGeneration {
 		// halt the moon processor
 		moonExecCode += moonCodeIndent + "hlt\n";
 		moonExecCode += moonCodeIndent + "\n";
-		moonExecCode += "temp_var				res	4";
+		moonExecCode += "temp_var				res	4\n";
+		moonExecCode += moonCodeIndent + "\n";
+		moonExecCode += MoonLib.MOON_LIBRARY.moonLib();
 		
 		System.out.println(moonExecCode);
 		
@@ -88,6 +91,8 @@ public class CodeGeneration {
 			return;
 		}
 		
+		//register for input/outpur from the user
+		String IORegister = "r1";
 		// temporary register whose value will be stored in the moon memory
 		String localRegister;
 		// offset value of the variable in the symbol table
@@ -134,6 +139,14 @@ public class CodeGeneration {
 		case "assignStat":
 			offset = varNode(node.getChildrens().get(0));
 			localRegister = exprNode(node.getChildrens().get(1));
+			if (offset.startsWith("r")) {
+				moonExecCode += moonCodeIndent +"sub r14, r14, "+offset+"\n";
+				moonExecCode += moonCodeIndent +"sw 0(r14), "+localRegister+"\n";
+				moonExecCode += moonCodeIndent +"add r14, r14, "+offset+"\n";
+				registerPool.push(localRegister);
+				registerPool.push(offset);
+				break;
+			}
 			// store the register value in the memory
 			moonExecCode += moonCodeIndent + "sw "+offset+"(r14), "+localRegister+"		% storing expression value in the moon memory\n";
 			registerPool.push(localRegister);
@@ -153,10 +166,14 @@ public class CodeGeneration {
 			
 		case "putStat":
 			offset = varNode(node.getChildrens().get(0));
-			localRegister = registerPool.pop();
-			moonExecCode += moonCodeIndent +"lw "+localRegister+", "+offset+"(r14)		% loading variable value in register\n";
-			moonExecCode += moonCodeIndent +"putc "+localRegister+"			% output the variable value\n";
-			registerPool.push(localRegister);
+			moonExecCode += moonCodeIndent +"lw "+IORegister+", "+offset+"(r14)		% loading variable value in register\n";
+			moonExecCode += moonCodeIndent +"jl r15, putint				% output the variable value\n";
+			break;
+			
+		case "getStat":
+			offset = varNode(node.getChildrens().get(0));
+			moonExecCode += moonCodeIndent +"jl r15, getint			% prompts the user for variable value\n";
+			moonExecCode += moonCodeIndent +"sw "+offset+"(r14), "+IORegister+"		% loading variable value in register\n";
 			break;
 			
 		case "ifStat":
@@ -173,15 +190,16 @@ public class CodeGeneration {
 			
 		case "forStat":
 			traverseAst(node.getChildrens().get(1));
-			moonTagBlock = "for_loop";
+			String idInForLoop = node.getChildrens().get(1).getChildrens().get(0).getChildrens().get(0).getData();
+			moonTagBlock = "for_loop"+idInForLoop;
 			moonExecCode += moonTagBlock;
 			localRegister = relOp(node.getChildrens().get(2));
-			moonExecCode += moonCodeIndent +"bz "+localRegister+", end_for		% end for loop\n";
+			moonExecCode += moonCodeIndent +"bz "+localRegister+", end_for"+idInForLoop+"		% end for loop\n";
 			registerPool.push(localRegister);
 			traverseAst(node.getChildrens().get(4));
 			traverseAst(node.getChildrens().get(3));
-			moonExecCode += moonCodeIndent +"j for_loop			% iterate the for loop\n";	
-			moonExecCode += "end_for 				nop\n";			
+			moonExecCode += moonCodeIndent +"j for_loop"+idInForLoop+"			% iterate the for loop\n";	
+			moonExecCode += "end_for"+idInForLoop+" 			nop\n";			
 			return;
 						
 		default:
@@ -223,6 +241,13 @@ public class CodeGeneration {
 		case "var":
 			offset = varNode(node.getChildrens().get(0));
 			localRegister = registerPool.pop();
+			if (offset.startsWith("r")) {
+				moonExecCode += moonCodeIndent +"sub r14, r14, "+offset+"\n";
+				moonExecCode += moonCodeIndent +"lw "+localRegister+", 0(r14)\n";
+				moonExecCode += moonCodeIndent +"add r14, r14, "+offset+"\n";
+				registerPool.push(offset);
+				break;
+			}
 			moonExecCode += moonCodeIndent +"lw "+localRegister+", "+offset+"(r14)		% loading variable value in register\n";
 			break;
 
@@ -347,16 +372,26 @@ public class CodeGeneration {
 		} else {
 			// symbol table entry of the variable
 			SymTableEntry entry = tableObj.searchRecord(currentTable, node.getChildrens().get(0).getData());
-			// the size of variable
+			// the size of variable in main program table
 			int varSize = Integer.parseInt(entry.getSize());
-			// memory offset of the variable
+			// memory offset of the variable in main program table
 			int varOffset = Math.abs(Integer.parseInt(entry.getOffset()));
+			// symbol table for the variable type
 			SymTable classTable = tableObj.findTable(tableObj.searchRecord(currentTable, node.getChildrens().get(0).getData()).getType());
 			classTable = tableObj.searchInSuperClass(globalTable, classTable, tables, indexNode.getChildrens().get(0).getData());
-			// symbol table entry of the variable
+			// symbol table entry of the variable type in global table
+			SymTableEntry globalentry = tableObj.searchRecord(globalTable, classTable.getTableName());
+			int memoryOffset = 0;
+			if (globalentry.getInheritedClassList().size() > 0) {
+				for (SymTable tempTable : globalentry.getInheritedClassList()) {
+					entry = tableObj.searchRecord(globalTable, tempTable.getTableName());
+					memoryOffset += Integer.parseInt(entry.getSize());
+				}
+			}
+			// symbol table entry of the variable in the class table
 			entry = tableObj.searchRecord(classTable, indexNode.getChildrens().get(0).getData());
 			
-			int memoryOffset = Math.abs(Integer.parseInt(entry.getOffset()));
+			memoryOffset += Math.abs(Integer.parseInt(entry.getOffset()));
 			return "-"+Integer.toString(varOffset - varSize + memoryOffset);
 		}
 		
@@ -377,22 +412,55 @@ public class CodeGeneration {
 		// the size of variable
 		int varSize = Integer.parseInt(entry.getSize());
 		// memory offset of the variable
-		int varOffset = Math.abs(Integer.parseInt(entry.getOffset()));
+		int varOffset = Math.abs(Integer.parseInt(entry.getOffset()));		
+		// dimension of the array
+		int dimension = node.getChildrens().get(1).getChildrens().size();
 		// index node
-		AstNode indexNode = node.getChildrens().get(1).getChildrens().get(0);
+		AstNode indexNode = node.getChildrens().get(1);
 		
-		switch (node.getChildrens().get(1).getChildrens().get(0).getNodeType()) {
-		case "numNode":
-			offset = "-"+Integer.toString((varOffset - varSize + 4) + (Integer.parseInt(indexNode.getData()) * 4));
-			break;
-			
-		case "var":
-			offset = varNode(indexNode);
-			break;
-			
-		default:
-			break;
-		}		
+		if (dimension > 1) {
+			// number of columns in the array
+			int arrayCols = Integer.parseInt(entry.getArraySizeList().get(1));
+			if (indexNode.getChildrens().get(0).getNodeType().equals("var")) {
+				
+				String localRegister1 = registerPool.pop();
+				String localRegister2 = registerPool.pop();
+				String localRegister3 = registerPool.pop();
+				String localRegister4 = registerPool.pop();
+				
+				moonExecCode += moonCodeIndent + "addi "+localRegister1+", r0, "+(varOffset - varSize + 4)+"	% storing the starting offset of variable\n";
+				offset = varNode(indexNode.getChildrens().get(0));
+				moonExecCode += moonCodeIndent +"lw "+localRegister2+", "+offset+"(r14)		% loading variable value in register\n";
+				offset = varNode(indexNode.getChildrens().get(1));
+				moonExecCode += moonCodeIndent +"lw "+localRegister3+", "+offset+"(r14)		% loading variable value in register\n";
+				moonExecCode += moonCodeIndent +"muli "+localRegister2+", "+localRegister2+", "+arrayCols+"\n";
+				moonExecCode += moonCodeIndent +"muli "+localRegister2+", "+localRegister2+", 4\n";
+				moonExecCode += moonCodeIndent +"muli "+localRegister3+", "+localRegister3+", 4\n";
+				moonExecCode += moonCodeIndent +"add "+localRegister4+", "+localRegister2+", "+localRegister3+"\n";
+				moonExecCode += moonCodeIndent +"add "+localRegister1+", "+localRegister1+", "+localRegister4+"\n";
+				registerPool.push(localRegister4);
+				registerPool.push(localRegister3);
+				registerPool.push(localRegister2);
+				
+				return localRegister1;
+			}			
+			offset = "-"+Integer.toString((varOffset - varSize + 4) + (Integer.parseInt(indexNode.getChildrens().get(0).getData())*4*arrayCols) + (Integer.parseInt(indexNode.getChildrens().get(1).getData())*4));
+		} else {
+	
+			switch (indexNode.getChildrens().get(0).getNodeType()) {
+			case "numNode":
+				offset = "-"+Integer.toString((varOffset - varSize + 4) + (Integer.parseInt(indexNode.getChildrens().get(0).getData()) * 4));
+				break;
+				
+			case "var":
+				offset = varNode(indexNode.getChildrens().get(0));
+				break;
+				
+			default:
+				break;
+			}
+		}
+		
 		
 		return offset;
 	}
@@ -442,6 +510,13 @@ public class CodeGeneration {
 		case "var":
 			offset = varNode(node.getChildrens().get(0));
 			localRegister2 = registerPool.pop();
+			if (offset.startsWith("r")) {
+				moonExecCode += moonCodeIndent +"sub r14, r14, "+offset+"\n";
+				moonExecCode += moonCodeIndent +"lw "+localRegister2+", 0(r14)\n";
+				moonExecCode += moonCodeIndent +"add r14, r14, "+offset+"\n";
+				registerPool.push(offset);
+				break;
+			}
 			moonExecCode += moonCodeIndent +"lw "+localRegister2+", "+offset+"(r14)		% loading variable value in register\n";
 			break;
 
@@ -468,6 +543,13 @@ public class CodeGeneration {
 		case "var":
 			offset = varNode(node.getChildrens().get(2));
 			localRegister3 = registerPool.pop();
+			if (offset.startsWith("r")) {
+				moonExecCode += moonCodeIndent +"sub r14, r14, "+offset+"\n";
+				moonExecCode += moonCodeIndent +"lw "+localRegister3+", 0(r14)\n";
+				moonExecCode += moonCodeIndent +"add r14, r14, "+offset+"\n";
+				registerPool.push(offset);
+				break;
+			}
 			moonExecCode += moonCodeIndent +"lw "+localRegister3+", "+offset+"(r14)		% loading variable value in register\n";
 			break;
 
@@ -510,6 +592,13 @@ public class CodeGeneration {
 		case "var":
 			offset = varNode(node.getChildrens().get(0));
 			localRegister2 = registerPool.pop();
+			if (offset.startsWith("r")) {
+				moonExecCode += moonCodeIndent +"sub r14, r14, "+offset+"\n";
+				moonExecCode += moonCodeIndent +"lw "+localRegister2+", 0(r14)\n";
+				moonExecCode += moonCodeIndent +"add r14, r14, "+offset+"\n";
+				registerPool.push(offset);
+				break;
+			}
 			moonExecCode += moonCodeIndent +"lw "+localRegister2+", "+offset+"(r14)		% loading variable value in register\n";
 			break;
 
@@ -536,6 +625,13 @@ public class CodeGeneration {
 		case "var":
 			offset = varNode(node.getChildrens().get(2));
 			localRegister3 = registerPool.pop();
+			if (offset.startsWith("r")) {
+				moonExecCode += moonCodeIndent +"sub r14, r14, "+offset+"\n";
+				moonExecCode += moonCodeIndent +"lw "+localRegister3+", 0(r14)\n";
+				moonExecCode += moonCodeIndent +"add r14, r14, "+offset+"\n";
+				registerPool.push(offset);
+				break;
+			}
 			moonExecCode += moonCodeIndent +"lw "+localRegister3+", "+offset+"(r14)		% loading variable value in register\n";
 			break;
 
@@ -578,6 +674,13 @@ public class CodeGeneration {
 		case "var":
 			offset = varNode(node.getChildrens().get(0));
 			localRegister2 = registerPool.pop();
+			if (offset.startsWith("r")) {
+				moonExecCode += moonCodeIndent +"sub r14, r14, "+offset+"\n";
+				moonExecCode += moonCodeIndent +"lw "+localRegister2+", 0(r14)\n";
+				moonExecCode += moonCodeIndent +"add r14, r14, "+offset+"\n";
+				registerPool.push(offset);
+				break;
+			}
 			moonExecCode += moonCodeIndent +"lw "+localRegister2+", "+offset+"(r14)		% loading variable value in register\n";
 			break;
 
@@ -604,6 +707,13 @@ public class CodeGeneration {
 		case "var":
 			offset = varNode(node.getChildrens().get(2));
 			localRegister3 = registerPool.pop();
+			if (offset.startsWith("r")) {
+				moonExecCode += moonCodeIndent +"sub r14, r14, "+offset+"\n";
+				moonExecCode += moonCodeIndent +"lw "+localRegister3+", 0(r14)\n";
+				moonExecCode += moonCodeIndent +"add r14, r14, "+offset+"\n";
+				registerPool.push(offset);
+				break;
+			}
 			moonExecCode += moonCodeIndent +"lw "+localRegister3+", "+offset+"(r14)		% loading variable value in register\n";
 			break;
 
@@ -665,6 +775,14 @@ public class CodeGeneration {
 			
 		case "geq":
 			operation = "cge";
+			break;
+			
+		case "and":
+			operation = "and";
+			break;
+			
+		case "or":
+			operation = "or";
 			break;
 
 		default:

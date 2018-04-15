@@ -1,0 +1,155 @@
+============================================================================
+Node type                                     | data         | type         
+============================================================================
+Node.prog                                     |              |             
+  Node.classDeclList                          |              |             
+    Node.classDecl                            |              |             
+      Node.idNode                             | A            |             
+      Node.inheritedList                      |              |             
+      Node.memberList                         |              |             
+        Node.varDecl                          |              |             
+          Node.typeNode                       | int          |             
+          Node.idNode                         | xyz          |             
+          Node.arraySizeList                  |              |             
+        Node.varDecl                          |              |             
+          Node.typeNode                       | float        |             
+          Node.idNode                         | temp         |             
+          Node.arraySizeList                  |              |             
+        Node.funcDecl                         |              |             
+          Node.typeNode                       | int          |             
+          Node.idNode                         | calculate    |             
+          Node.fParamsList                    |              |             
+            Node.fParam                       |              |             
+              Node.typeNode                   | int          |             
+              Node.idNode                     | a            |             
+              Node.arraySizeList              |              |             
+            Node.fParam                       |              |             
+              Node.typeNode                   | int          |             
+              Node.idNode                     | b            |             
+              Node.arraySizeList              |              |             
+    Node.classDecl                            |              |             
+      Node.idNode                             | B            |             
+      Node.inheritedList                      |              |             
+        Node.idNode                           | A            |             
+      Node.memberList                         |              |             
+  Node.funcDefList                            |              |             
+    Node.funcDef                              |              |             
+      Node.typeNode                           | int          |             
+      Node.scopeSpec                          |              |             
+        Node.idNode                           | A            |             
+      Node.idNode                             | calculate    |             
+      Node.fParamsList                        |              |             
+        Node.fParam                           |              |             
+          Node.typeNode                       | int          |             
+          Node.idNode                         | a            |             
+          Node.arraySizeList                  |              |             
+        Node.fParam                           |              |             
+          Node.typeNode                       | int          |             
+          Node.idNode                         | b            |             
+          Node.arraySizeList                  |              |             
+      Node.funcBody                           |              |             
+        Node.varDecl                          |              |             
+          Node.typeNode                       | int          |             
+          Node.idNode                         | result       |             
+          Node.arraySizeList                  |              |             
+        Node.assignStat                       |              | int         
+          Node.var                            |              | int         
+            Node.idNode                       | result       |             
+            Node.indexList                    |              |             
+          Node.expr                           |              | int         
+            Node.addOp                        |              | int         
+              Node.var                        |              | int         
+                Node.idNode                   | a            |             
+                Node.indexList                |              |             
+              Node.operatorNode               | +            |             
+              Node.var                        |              | int         
+                Node.idNode                   | b            |             
+                Node.indexList                |              |             
+        Node.returnStat                       |              | int         
+          Node.var                            |              | int         
+            Node.idNode                       | result       |             
+            Node.indexList                    |              |             
+    Node.funcDef                              |              |             
+      Node.typeNode                           | A            |             
+      Node.idNode                             | add          |             
+      Node.fParamsList                        |              |             
+        Node.fParam                           |              |             
+          Node.typeNode                       | int          |             
+          Node.idNode                         | x            |             
+          Node.arraySizeList                  |              |             
+            Node.numNode                      | 1            | int         
+        Node.fParam                           |              |             
+          Node.typeNode                       | int          |             
+          Node.idNode                         | y            |             
+          Node.arraySizeList                  |              |             
+      Node.funcBody                           |              |             
+        Node.varDecl                          |              |             
+          Node.typeNode                       | int          |             
+          Node.idNode                         | result       |             
+          Node.arraySizeList                  |              |             
+        Node.varDecl                          |              |             
+          Node.typeNode                       | A            |             
+          Node.idNode                         | abc          |             
+          Node.arraySizeList                  |              |             
+        Node.assignStat                       |              | int         
+          Node.var                            |              | int         
+            Node.idNode                       | result       |             
+            Node.indexList                    |              |             
+          Node.expr                           |              | int         
+            Node.addOp                        |              | int         
+              Node.var                        |              | int         
+                Node.idNode                   | x            |             
+                Node.indexList                |              |             
+                  Node.numNode                | 0            | int         
+              Node.operatorNode               | +            |             
+              Node.var                        |              | int         
+                Node.idNode                   | y            |             
+                Node.indexList                |              |             
+        Node.returnStat                       |              | A           
+          Node.var                            |              | A           
+            Node.idNode                       | abc          |             
+            Node.indexList                    |              |             
+  Node.mainBody                               |              |             
+    Node.varDecl                              |              |             
+      Node.typeNode                           | int          |             
+      Node.idNode                             | a            |             
+      Node.arraySizeList                      |              |             
+        Node.numNode                          | 1            | int         
+    Node.varDecl                              |              |             
+      Node.typeNode                           | int          |             
+      Node.idNode                             | b            |             
+      Node.arraySizeList                      |              |             
+    Node.varDecl                              |              |             
+      Node.typeNode                           | int          |             
+      Node.idNode                             | result       |             
+      Node.arraySizeList                      |              |             
+    Node.varDecl                              |              |             
+      Node.typeNode                           | A            |             
+      Node.idNode                             | abc          |             
+      Node.arraySizeList                      |              |             
+    Node.getStat                              |              |             
+      Node.var                                |              | int         
+        Node.idNode                           | a            |             
+        Node.indexList                        |              |             
+          Node.numNode                        | 0            | int         
+    Node.getStat                              |              |             
+      Node.var                                |              | int         
+        Node.idNode                           | b            |             
+        Node.indexList                        |              |             
+    Node.assignStat                           |              | A           
+      Node.var                                |              | A           
+        Node.idNode                           | abc          |             
+        Node.indexList                        |              |             
+      Node.expr                               |              | A           
+        Node.var                              |              | A           
+          Node.idNode                         | add          |             
+          Node.indexList                      |              |             
+            Node.aParamList                   |              |             
+              Node.var                        |              | int         
+                Node.idNode                   | a            |             
+                Node.indexList                |              |             
+                  Node.numNode                | 0            | int         
+              Node.var                        |              | int         
+                Node.idNode                   | b            |             
+                Node.indexList                |              |             
+============================================================================

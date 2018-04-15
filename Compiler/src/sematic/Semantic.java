@@ -1,3 +1,6 @@
+/**
+ * Package holds the classes that performs the semantic analysis of the input
+ */
 package sematic;
 
 import java.io.IOException;
@@ -11,6 +14,11 @@ import helper.Util;
 import syntactic.AstNode;
 import syntactic.Parser;
 
+/**
+ * This main class that controls the semantic analysis phase.
+ * Creates the symbol tables, performs type-checking and error reporting
+ * @author krn-singh
+ */
 public class Semantic {
 	
 	private SymTable currentTable;
@@ -26,27 +34,52 @@ public class Semantic {
 	private SymTable tableObj = new SymTable();
 	private Util util = new Util();
 
+	/**
+	 * Getter for tables
+	 * 
+	 * @return list of tables
+	 */
 	public static LinkedList<SymTable> getTables() {
 		return tables;
 	}
 
+	/**
+	 * Getter for all the errors up till semantic phase
+	 * 
+	 * @return collection of errors
+	 */
 	public static Map<Integer, ArrayList<String>> getMap() {
 		return map;
 	}
 
+	/**
+	 * Initializes the data members of the class and calls the semantic function.
+	 * 
+	 * @throws IOException handles the I/O related interruptions
+	 */
 	public void initializeSematicAnalysis() throws IOException {
-		
+		// collection of errors
 		map = Parser.getMap();
+		//Root of AST
 		root = Parser.getRoot();
+		// list of tables
 		tables = new LinkedList<SymTable>();
+		// list of symbol table entries in string format for output
 		recordSymbolTables = new ArrayList<String>();
+		// list of all valid declaration types
 		validDeclTypes = new ArrayList<String>();
 		validDeclTypes.add("int");
 		validDeclTypes.add("float");
+		// list of all functions (member function or free function) in the input program
 		funcList = new ArrayList<String>();
 		semanticAnalysis();
 	}
 	
+	/**
+	 * Main function that controls the semantic mechanism.
+	 * 
+	 * @throws IOException handles the I/O related interruptions
+	 */
 	public void semanticAnalysis() throws IOException {
 
 		System.out.println("Starting Semantic Analysis phase..........\n");		
@@ -76,6 +109,12 @@ public class Semantic {
 		DataReadWrite.writeErrors(map);		
 	}
 	
+	/**
+	 * Performs a depth first search of the AST. Creates the symbol tables and
+	 * symbol table entries corresponding to the semantic actions of the visited node
+	 * 
+	 * @param node current node of AST
+	 */
 	public void phaseOne(AstNode node) {
 		
 		if(node.getChildrens().size() == 0) {
@@ -241,6 +280,11 @@ public class Semantic {
 		}
 	}
 	
+	/**
+	 * Iterates through the AST and performs the type checking and other semantic checks.
+	 * 
+	 * @param node current node of AST
+	 */
 	public void phaseTwo(AstNode node) {
 		
 		if(node.getChildrens().size() == 0) {
@@ -261,11 +305,22 @@ public class Semantic {
 		
 		case "inheritedList":
 			
+			SymTable table;
+			SymTableEntry entry;
 			for (int i = 0; i < node.getChildrens().size(); i++) {				
 				for (SymTableEntry tempEntry : globalTable.getEntries()) {
 					if (tempEntry.getName().equals(node.getChildrens().get(i).getData())) {
 						tableObj.setTables(tables);
-						currentEntry.addInheritedClass(tableObj.findTable(node.getChildrens().get(i).getData()));
+						// symbol table of the parent class
+						table = tableObj.findTable(node.getChildrens().get(i).getData());
+						currentEntry.addInheritedClass(table);
+						// global entry of the parent class
+						entry = tableObj.searchRecord(globalTable, table.getTableName());
+						if (entry.getInheritedClassList().size() > 0) {
+							for (SymTable tempTable : entry.getInheritedClassList()) {
+								currentEntry.addInheritedClass(tempTable);
+							}
+						}
 					}
 				}
 			}
@@ -400,6 +455,13 @@ public class Semantic {
 		}
 	}
 	
+	/**
+	 * Evaluates the type(int or float) of the variable
+	 * 
+	 * @param table Symbol table for the variable
+	 * @param node current node
+	 * @return type(int or float) of the variable
+	 */
 	public String varNode(SymTable table, AstNode node) {
 		
 		String type = "";
@@ -422,6 +484,13 @@ public class Semantic {
 		return type;
 	}
 	
+	/**
+	 * Evaluates the type(int or float) of the expression
+	 * 
+	 * @param table Symbol table for the variable in the expression
+	 * @param node current node
+	 * @return type(int or float) of the expression
+	 */
 	public String exprNode(SymTable table, AstNode node) {
 		
 		String type = "";
@@ -464,6 +533,14 @@ public class Semantic {
 		return type;
 	}
 	
+	/**
+	 * Evaluates the type(int or float) of the left and right side of the operator.
+	 * Reports error in case of type mismatch
+	 * 
+	 * @param table Symbol table for the variable in the expression
+	 * @param node current node
+	 * @return type(int or float) of the expression
+	 */
 	public String addOpNode(SymTable table, AstNode node) {
 		
 		String type = "";
@@ -532,6 +609,14 @@ public class Semantic {
 		return type;
 	}
 	
+	/**
+	 * Evaluates the type(int or float) of the left and right side of the operator.
+	 * Reports error in case of type mismatch
+	 * 
+	 * @param table Symbol table for the variable in the expression
+	 * @param node current node
+	 * @return type(int or float) of the expression
+	 */
 	public String multOpNode(SymTable table, AstNode node) {
 		
 		String type = "";
@@ -600,6 +685,14 @@ public class Semantic {
 		return type;
 	}
 	
+	/**
+	 * Evaluates the type(int or float) of the left and right side of the operator.
+	 * Reports error in case of type mismatch
+	 * 
+	 * @param table Symbol table for the variable in the expression
+	 * @param node current node
+	 * @return type(int or float) of the expression
+	 */
 	public String relOpNode(SymTable table, AstNode node) {
 		
 		String type = "";
@@ -668,6 +761,14 @@ public class Semantic {
 		return type;
 	}
 	
+	/**
+	 * Validates the parameters of the function call
+	 * 
+	 * @param table Symbol table for the function from which another function is called.
+	 * @param funcReferenceTble Symbol table for the function
+	 * @param node current node
+	 * @return true if valid parameters else false
+	 */
 	public boolean aParamListNode(SymTable table, SymTable funcReferenceTble, AstNode node) {
 		
 		String type = "";
@@ -699,6 +800,13 @@ public class Semantic {
 		return true;
 	}
 	
+	/**
+	 * Validates the number of elements of the array
+	 * 
+	 * @param table Symbol table for the array variable
+	 * @param node current node
+	 * @return true if valid number of array elements else false
+	 */
 	public boolean arraySizeListNode(SymTable table, AstNode node) {
 		
 		String type = "";
@@ -746,6 +854,14 @@ public class Semantic {
 		return true;
 	}
 	
+	/**
+	 * Validates the data members for the class
+	 * 
+	 * @param table Symbol table for the class
+	 * @param programTable Symbol table for program function
+	 * @param node current node
+	 * @return type(int or float) of the class member
+	 */
 	public String validateIndexListNode(SymTable table, SymTable programTable, AstNode node) {
 		
 		String type = "";
@@ -775,6 +891,15 @@ public class Semantic {
 		return type;
 	}
 	
+	/**
+	 * Validates the member functions
+	 * 
+	 * @param isMemberFunction true if the accessible class member is a function
+	 * @param node current node
+	 * @param table Symbol table for the class
+	 * @param programTable Symbol table for program function
+	 * @return type(int or float) of the class member function
+	 */
 	public String classMembers(boolean isMemberFunction, AstNode node, SymTable table, SymTable programTable) {
 		
 		String type = "";
@@ -817,6 +942,13 @@ public class Semantic {
 		return type;
 	}
 	
+	/**
+	 * Returns the type of valid free functions
+	 * 
+	 * @param table Symbol table for the program function
+	 * @param node current node
+	 * @return type(int or float) of the free function
+	 */
 	public String isFreeFunction(SymTable table, AstNode node) {
 		
 		String type = "";
@@ -857,6 +989,13 @@ public class Semantic {
 		return type;
 	}
 	
+	/**
+	 * Returns the type of valid class member
+	 * 
+	 * @param table Symbol table for the program function
+	 * @param node current node
+	 * @return type(int or float) of the class member
+	 */
 	public String isClassMember(SymTable table, AstNode node) {
 		
 		String type = "";
@@ -887,6 +1026,13 @@ public class Semantic {
 		return type;
 	}
 	
+	/**
+	 * Evaluates the type(int or float) of the array
+	 * 
+	 * @param table Symbol table for the array
+	 * @param node current node
+	 * @return type(int or float) of the array
+	 */
 	public String isArray(SymTable table, AstNode node) {
 		
 		String type = "";
@@ -924,6 +1070,13 @@ public class Semantic {
 		return type;
 	}
 	
+	/**
+	 * Evaluates the type(int or float) of the variable
+	 * 
+	 * @param table Symbol table for the variable
+	 * @param node current node
+	 * @return type(int or float) of the variable
+	 */
 	public String isLocalVariable(SymTable table, AstNode node) {
 		
 		String type = "";
@@ -944,6 +1097,9 @@ public class Semantic {
 		return type;
 	}
 	
+	/**
+	 * Calculates the memory size of the variables in the symbol table
+	 */
 	public void calculateMemorySize() {
 		
 		int size;
@@ -1001,6 +1157,13 @@ public class Semantic {
 		}
 	}
 	
+	/**
+	 * Calculates the memory cells of the arrays in the symbol table
+	 * 
+	 * @param entry Symbol table entry
+	 * @param type Variable type
+	 * @return
+	 */
 	public int calculateMemoryCells(SymTableEntry entry, String type) {
 		
 		int cellCount = 1;
@@ -1013,6 +1176,12 @@ public class Semantic {
 		return cellCount;
 	}
 	
+	/**
+	 * Evaluates the variable size
+	 * 
+	 * @param type Type of the variable
+	 * @return size of int, float or class type
+	 */
 	public int variableSize(String type) {
 		
 		int size = 0; 
@@ -1027,14 +1196,30 @@ public class Semantic {
 			break;
 
 		default:
-			SymTableEntry entry = tableObj.searchRecord(globalTable, type);
-			if (entry != null) {		size = Integer.parseInt(entry.getSize());	}			
+			SymTableEntry globalEntry = tableObj.searchRecord(globalTable, type);
+			if (globalEntry != null) {	
+				// memory size of the class object
+				size = Integer.parseInt(globalEntry.getSize());
+				if (globalEntry.getInheritedClassList().size() > 0) {
+					// computes the size of parent classes
+					SymTableEntry localEntry;
+					for (SymTable symTable : globalEntry.getInheritedClassList()) {
+						localEntry = tableObj.searchRecord(globalTable, symTable.getTableName());
+						size += Integer.parseInt(localEntry.getSize());
+					}
+				}
+			}			
 			break;
 		}
 		
 		return size;		
 	}
 	
+	/**
+	 * Prints the symbol table
+	 * 
+	 * @param table Symbol table
+	 */
 	public void printTable(SymTable table) {
 		
 		if(table.getEntries().size() == 0) {	return;	}
@@ -1074,6 +1259,11 @@ public class Semantic {
 		}		
 	}
 	
+	/**
+	 * Prints the symbol table
+	 * 
+	 * @param table Symbol table
+	 */
 	public void print(SymTable table) {
 		System.out.println("==================================================================================================================================");
 		recordSymbolTables.add("==================================================================================================================================");
