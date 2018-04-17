@@ -1,4 +1,8 @@
-package compiler.syntactic;
+/**
+ * The syntactic package holds the classes required for parsing and later on,
+ * building The Abstract Syntax Tree.
+ */
+package syntactic;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -9,58 +13,111 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.TreeMap;
 
-import compiler.constants.CompilerEnum;
-import compiler.constants.CompilerEnum.TokenType;
-import compiler.helper.DataReadWrite;
-import compiler.helper.Util;
-import compiler.lexical.Token;
-import compiler.lexical.Tokenizer;
+import constants.CompilerEnum;
+import constants.CompilerEnum.TokenType;
+import helper.DataReadWrite;
+import helper.Util;
+import lexical.Token;
+import lexical.Tokenizer;
 
+/**
+ * Provides all the operations required for parsing
+ * 
+ * @author krn-singh
+ */
 public class Parser {
 
-
-	private static ArrayList<String> terminals = new ArrayList<>();
-	private static TreeMap<String, Integer> rowHeaders = new TreeMap<>();
-	private static TreeMap<String, Integer> columnHeaders = new TreeMap<>();
+	private static ArrayList<String> terminals;
+	private static TreeMap<String, Integer> rowHeaders;
+	private static TreeMap<String, Integer> columnHeaders;
 	private static TreeMap<String, ArrayList<String>> firstSets;
 	private static TreeMap<String, ArrayList<String>> followSets;
 	private static TreeMap<String, String> grammar;
 	private static String[][] parseTable;
-	private static List<Token> tokenList = new ArrayList<Token>();
-	private static List<String> derivationList = new ArrayList<>();
-	private static Stack<String> stack = new Stack<>();
-	private static Stack<String> ruleStack = new Stack<>();
-	private static Stack<AstNode> contextStack = new Stack<>();
-	private static int tokenCounter = 0;
-	private static String tokenName = "";
-	private static int lineNumber = -1;
-	private static String tokenValue = "";
+	private static List<Token> tokenList;
+	private static List<String> derivationList;
+	private static Stack<String> stack;
+	private static Stack<String> ruleStack;
+	private static Stack<AstNode> contextStack;
+	private static int tokenCounter;
+	private static String tokenName;
+	private static int lineNumber;
+	private static String tokenValue;
 	private static TokenType type;
 	private static AstNode root;
 	public static Map<Integer, ArrayList<String>> map;
 	
+	/**
+	 * Getter for all the errors up till syntactic phase
+	 * @return collection of errors
+	 */
 	public static Map<Integer, ArrayList<String>> getMap() {
 		return map;
 	}
 
+	/**
+	 * Initializes the data members of the class and calls the parsing function.
+	 * 
+	 * @throws IOException handles the I/O related interruptions
+	 */
+	public static void intializeParser() throws IOException {
+		// list of all terminals in the grammar
+		terminals = new ArrayList<>();
+		// collections of non-terminals as row headers 
+		rowHeaders = new TreeMap<>();
+		// collections of terminals as column headers
+		columnHeaders = new TreeMap<>();
+		// list of all valid tokens in the input 
+		tokenList = new ArrayList<Token>();
+		// list of step-by-step derivation of the input 
+		derivationList = new ArrayList<>();
+		// Stack for pushing the grammar rules
+		stack = new Stack<>();
+		// Stack for storing the symbols corresponding to a specific node of syntax tree
+		ruleStack = new Stack<>();
+		// Stack for storing the nodes corresponding to a specific node of syntax tree
+		contextStack = new Stack<>();
+		tokenCounter = 0;
+		tokenName = "";
+		lineNumber = -1;
+		tokenValue = "";
+		grammar = DataReadWrite.readGrammar();
+		map = Tokenizer.getMap();
+		parser();
+	}
+	
+	/**
+	 * Main function that controls the parsing mechanism.
+	 * 
+	 * @throws IOException handles the I/O related interruptions
+	 */
 	public static void parser() throws IOException {
 
 		System.out.println("Reading grammar and generating the first and follow sets......");
-		grammar = DataReadWrite.readGrammar();
-		map = Tokenizer.getMap();
+		// Read the first sets of non-terminals
 		firstSets();
+		// Read the follow sets of non-terminals
 		followSets();
 		System.out.println("Building the parse table");
+		// Initialize the parsing table with row and column headers
 		intializeTable();
+		// Build the parsing table
 		buildTable();
 		//printTable();
 		System.out.println("Parsing in progress...... Building the Abstract Syntax tree");
 		System.out.println();
+		// Perform the table driven parsing
 		parsing();
+		// Print the Abstract Syntax Tree
 		new AstNode().print(Parser.getRoot());
 		System.out.println();
 	}
 
+	/**
+	 * Fetch the first sets of all non-terminals
+	 * 
+	 * @throws IOException handles the I/O related interruptions
+	 */
 	public static void firstSets() throws IOException {
 
 		firstSets = DataReadWrite.readFirstSets();
@@ -86,6 +143,11 @@ public class Parser {
 		}
 	}
 
+	/**
+	 * Fetch the follow sets
+	 * 
+	 * @throws IOException handles the I/O related interruptions
+	 */
 	public static void followSets() throws IOException {
 
 		followSets = DataReadWrite.readFollowSets();
@@ -111,6 +173,9 @@ public class Parser {
 		}
 	}
 
+	/**
+	 * Initialize the parsing table with row and column headers
+	 */
 	public static void intializeTable() {
 
 		try {
@@ -141,6 +206,9 @@ public class Parser {
 		}
 	}
 
+	/**
+	 * Build the parsing table
+	 */
 	public static void buildTable() {
 
 		try {
@@ -209,22 +277,26 @@ public class Parser {
 		}
 	}
 	
+	/**
+	 * Print the parsing table
+	 */
 	public static void printTable() {
 		
 		for (int i = 0; i < parseTable.length; i++) {
 			
 			for (int j = 0; j < parseTable[i].length; j++) {
 				
-				/*if (parseTable[i][j]==null) {
-					
-					parseTable[i][j] = "0";
-				}*/
 				System.out.print(parseTable[i][j]+" ");
 			}
 			System.out.println();
 		}
 	}
 	
+	/**
+	 * Performs the parsing
+	 * 
+	 * @throws IOException handles the I/O related interruptions
+	 */
 	public static void parsing() throws IOException {
 		
 		try {
@@ -408,7 +480,7 @@ public class Parser {
 							node.setData(tokenValue);
 							node.setType(type == TokenType.intNum ? "int" : "float");
 							node.setLineNumber(lineNumber);
-						} else if (type == TokenType.operator) {
+						} else if (type == TokenType.operator || tokenValue.equals("or") || tokenValue.equals("and")) {
 							
 							node.setNodeType("operatorNode");
 							node.setData(tokenValue);
@@ -482,6 +554,9 @@ public class Parser {
 		}		
 	}
 	
+	/**
+	 * Gets the next token in the token list
+	 */
 	public static void nextToken() {
 		
 		try {
@@ -520,6 +595,11 @@ public class Parser {
 		
 	}
 	
+	/**
+	 * Error control mechanism during parsing.
+	 * 
+	 * @param isTerminal true if the top of the stack is a terminal and there is a syntax error
+	 */
 	public static void skipErrors(boolean isTerminal) {
 		
 		try {
@@ -531,13 +611,10 @@ public class Parser {
 					util.setMap(map);
 	                map = util.reportError(lineNumber, "Error ("+tokenName+") reported during Syntactic phase in line ");
 					nextToken();
-				} else {
-					stack.pop();
-				}	
+				} else {		stack.pop();		}	
 				
 			} else {			
 
-                //ArrayList<String> firstSet = firstSets.get(stack.peek());
 				ArrayList<String> followSet = followSets.get(stack.peek());
 				
 				if (followSet.contains(tokenName) || tokenName.equals("$")) {
@@ -557,21 +634,6 @@ public class Parser {
 		                map = util.reportError(lineNumber, "Error ("+tokenName+") reported during Syntactic phase in line ");
 						stack.pop();
 					}
-/*					while (!firstSet.contains(token) || (DataReadWrite.productionsWithEpsilon().contains(stack.peek()) && !followSet.contains(token))) {
-						
-						if (tokenCounter<tokenList.size()) {
-							nextToken();
-							System.out.println(token);
-						} else {
-							
-							System.out.println("as");
-							derivationList.clear();
-							DataReadWrite.writeDerivation(derivationList);
-							DataReadWrite.writeSyntacticErrors(syntacticErrors);
-							System.out.println("Parsing cannot be completed successfully because of errors in the source file. Please check the error file.");
-							System.exit(0);
-						}
-					}*/
 				}
 			}
 		} catch (Exception e) {
@@ -579,10 +641,18 @@ public class Parser {
 		}		
 	}
 
+	/**
+	 * returns the root of the abstract syntax tree
+	 */
 	public static AstNode getRoot() {
 		return root;
 	}
 
+	/**
+	 * Set the root of AST
+	 * 
+	 * @param root Root of AST
+	 */
 	public static void setRoot(AstNode root) {
 		Parser.root = root;
 	}

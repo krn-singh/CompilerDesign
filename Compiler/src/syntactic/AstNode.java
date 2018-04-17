@@ -1,9 +1,20 @@
-package compiler.syntactic;
+/**
+ * The syntactic package holds the classes required for parsing and later on,
+ * building The Abstract Syntax Tree.
+ */
+package syntactic;
 
+import java.io.IOException;
 import java.util.LinkedList;
 
-import compiler.visitors.Visitor;
+import helper.DataReadWrite;
 
+/**
+ * Provides the attributes required for the node of the Abstract Syntax Tree.
+ * Also provides functions for printing the tree.
+ * 
+ * @author krn-singh
+ */
 public class AstNode {
 
 	private String data = "";
@@ -12,7 +23,9 @@ public class AstNode {
 	private Integer lineNumber;
 	private String subtreeString = "";
 	private LinkedList<AstNode> childrens = new LinkedList<>();
-	public int nodeLevel = 0;
+	private int nodeLevel = 0;
+	private String abstractTree = new String();
+	
 
 	public String getData() {
 		return data;
@@ -62,34 +75,44 @@ public class AstNode {
 		this.subtreeString = subtreeString;
 	}
 
+	/**
+	 * Performs the depth-first search of the node of a tree.
+	 * 
+	 * @param root current node of the tree
+	 */
 	public void astTraversel(AstNode root) {
 		
 		if(root.getChildrens().size() == 0) {
-			for (int i = 0; i < nodeLevel; i++ )
-	    		System.out.print("  ");
+			for (int i = 0; i < nodeLevel; i++ ) {
+				System.out.print("  ");
+				abstractTree += "  ";
+			}
+	    		
 			
 			String toprint = String.format("%-45s" , "Node."+root.getNodeType()); 
 			for (int i = 0; i < nodeLevel; i++ )
 	    			toprint = toprint.substring(0, toprint.length() - 2);
 			toprint += String.format("%-15s" , (root.getData() == null ? " | " : " | " + root.getData()));    	
 			toprint += String.format("%-15s" , (root.getType() == null ? " | " : " | " + root.getType()));
-			toprint += String.format("%-20s" , (root.getSubtreeString() == null ? " | " : " | " + root.getSubtreeString()));
 			
 			System.out.println(toprint);
+			abstractTree += toprint+"\n";
 			return;
 		}
 		
-		for (int i = 0; i < nodeLevel; i++ )
-    		System.out.print("  ");
+		for (int i = 0; i < nodeLevel; i++ ) {
+			System.out.print("  ");
+			abstractTree += "  ";
+		}
 		
 		String toprint = String.format("%-45s" , "Node."+root.getNodeType()); 
 		for (int i = 0; i < nodeLevel; i++ )
     			toprint = toprint.substring(0, toprint.length() - 2);
 		toprint += String.format("%-15s" , (root.getData() == null ? " | " : " | " + root.getData()));    	
 		toprint += String.format("%-15s" , (root.getType() == null ? " | " : " | " + root.getType()));
-		toprint += String.format("%-20s" , (root.getSubtreeString() == null ? " | " : " | " + root.getSubtreeString()));
 		
 		System.out.println(toprint);
+		abstractTree += toprint+"\n";
 		
 		nodeLevel++;
 		
@@ -102,15 +125,23 @@ public class AstNode {
 		
 	}
 	
-    public void print(AstNode root){
-    	System.out.println("================================================================================================");
-    	System.out.println("Node type                                     | data         | type         | subtree string    ");
-    	System.out.println("================================================================================================");
+	/**
+	 * Accepts the root of the AST and calls the astTraversal
+	 * 
+	 * @param root Root of the AST
+	 * @throws IOException handles the I/O related interruptions
+	 */
+    public void print(AstNode root) throws IOException{
+    	System.out.println("============================================================================");
+    	abstractTree += "============================================================================\n";
+    	System.out.println("Node type                                     | data         | type         ");
+    	abstractTree += "Node type                                     | data         | type         \n";
+    	System.out.println("============================================================================");
+    	abstractTree += "============================================================================\n";
     	astTraversel(root);
-    	System.out.println("================================================================================================");
-    }
-    
-    public void accept(Visitor visitor) {
-    		visitor.visit(this);
+    	System.out.println("============================================================================");
+    	abstractTree += "============================================================================\n";
+    	
+    	DataReadWrite.writeAST(abstractTree);
     }
 }

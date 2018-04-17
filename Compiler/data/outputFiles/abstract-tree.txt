@@ -1,0 +1,141 @@
+============================================================================
+Node type                                     | data         | type         
+============================================================================
+Node.prog                                     |              |             
+  Node.classDeclList                          |              |             
+    Node.classDecl                            |              |             
+      Node.idNode                             | Student      |             
+      Node.inheritedList                      |              |             
+      Node.memberList                         |              |             
+        Node.varDecl                          |              |             
+          Node.typeNode                       | int          |             
+          Node.idNode                         | marks        |             
+          Node.arraySizeList                  |              |             
+  Node.funcDefList                            |              |             
+    Node.funcDef                              |              |             
+      Node.typeNode                           | int          |             
+      Node.idNode                             | highestMarks |             
+      Node.fParamsList                        |              |             
+        Node.fParam                           |              |             
+          Node.typeNode                       | Student      |             
+          Node.idNode                         | s1           |             
+          Node.arraySizeList                  |              |             
+        Node.fParam                           |              |             
+          Node.typeNode                       | Student      |             
+          Node.idNode                         | s2           |             
+          Node.arraySizeList                  |              |             
+      Node.funcBody                           |              |             
+        Node.varDecl                          |              |             
+          Node.typeNode                       | int          |             
+          Node.idNode                         | result       |             
+          Node.arraySizeList                  |              |             
+        Node.ifStat                           |              |             
+          Node.relOp                          |              | int         
+            Node.var                          |              | int         
+              Node.idNode                     | s1           |             
+              Node.indexList                  |              |             
+                Node.idNode                   | marks        |             
+            Node.operatorNode                 | gt           |             
+            Node.var                          |              | int         
+              Node.idNode                     | s2           |             
+              Node.indexList                  |              |             
+                Node.idNode                   | marks        |             
+          Node.statBlock                      |              |             
+            Node.assignStat                   |              | int         
+              Node.var                        |              | int         
+                Node.idNode                   | result       |             
+                Node.indexList                |              |             
+              Node.expr                       |              | int         
+                Node.var                      |              | int         
+                  Node.idNode                 | s1           |             
+                  Node.indexList              |              |             
+                    Node.idNode               | marks        |             
+          Node.statBlock                      |              |             
+            Node.assignStat                   |              | int         
+              Node.var                        |              | int         
+                Node.idNode                   | result       |             
+                Node.indexList                |              |             
+              Node.expr                       |              | int         
+                Node.var                      |              | int         
+                  Node.idNode                 | s2           |             
+                  Node.indexList              |              |             
+                    Node.idNode               | marks        |             
+        Node.returnStat                       |              | int         
+          Node.var                            |              | int         
+            Node.idNode                       | result       |             
+            Node.indexList                    |              |             
+  Node.mainBody                               |              |             
+    Node.varDecl                              |              |             
+      Node.typeNode                           | int          |             
+      Node.idNode                             | highest      |             
+      Node.arraySizeList                      |              |             
+    Node.varDecl                              |              |             
+      Node.typeNode                           | int          |             
+      Node.idNode                             | topper       |             
+      Node.arraySizeList                      |              |             
+    Node.varDecl                              |              |             
+      Node.typeNode                           | Student      |             
+      Node.idNode                             | s1           |             
+      Node.arraySizeList                      |              |             
+    Node.varDecl                              |              |             
+      Node.typeNode                           | Student      |             
+      Node.idNode                             | s2           |             
+      Node.arraySizeList                      |              |             
+    Node.assignStat                           |              | int         
+      Node.var                                |              | int         
+        Node.idNode                           | s1           |             
+        Node.indexList                        |              |             
+          Node.idNode                         | marks        |             
+      Node.expr                               |              | int         
+        Node.numNode                          | 80           | int         
+    Node.assignStat                           |              | int         
+      Node.var                                |              | int         
+        Node.idNode                           | s2           |             
+        Node.indexList                        |              |             
+          Node.idNode                         | marks        |             
+      Node.expr                               |              | int         
+        Node.numNode                          | 120          | int         
+    Node.assignStat                           |              | int         
+      Node.var                                |              | int         
+        Node.idNode                           | highest      |             
+        Node.indexList                        |              |             
+      Node.expr                               |              | int         
+        Node.var                              |              | int         
+          Node.idNode                         | highestMarks |             
+          Node.indexList                      |              |             
+            Node.aParamList                   |              |             
+              Node.var                        |              | Student     
+                Node.idNode                   | s1           |             
+                Node.indexList                |              |             
+              Node.var                        |              | Student     
+                Node.idNode                   | s2           |             
+                Node.indexList                |              |             
+    Node.ifStat                               |              |             
+      Node.relOp                              |              | int         
+        Node.var                              |              | int         
+          Node.idNode                         | highest      |             
+          Node.indexList                      |              |             
+        Node.operatorNode                     | eq           |             
+        Node.var                              |              | int         
+          Node.idNode                         | s1           |             
+          Node.indexList                      |              |             
+            Node.idNode                       | marks        |             
+      Node.statBlock                          |              |             
+        Node.assignStat                       |              | int         
+          Node.var                            |              | int         
+            Node.idNode                       | topper       |             
+            Node.indexList                    |              |             
+          Node.expr                           |              | int         
+            Node.numNode                      | 1            | int         
+      Node.statBlock                          |              |             
+        Node.assignStat                       |              | int         
+          Node.var                            |              | int         
+            Node.idNode                       | topper       |             
+            Node.indexList                    |              |             
+          Node.expr                           |              | int         
+            Node.numNode                      | 2            | int         
+    Node.putStat                              |              |             
+      Node.var                                |              | int         
+        Node.idNode                           | topper       |             
+        Node.indexList                        |              |             
+============================================================================

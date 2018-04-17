@@ -1,4 +1,4 @@
-package compiler.helper;
+package helper;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -11,15 +11,15 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 import java.util.TreeMap;
 
-import compiler.lexical.Token;
+import constants.Constants;
+import lexical.Token;
 
 /**
- * class acts as a medium between lexical analyzer and the data files.
- * @author Karan
- * @version 1.0
+ * Class acts as a medium between the data files and all the operations of the compiler.
+ * 
+ * @author krn-singh
  */
 public class DataReadWrite {
 
@@ -28,24 +28,16 @@ public class DataReadWrite {
 	private static BufferedWriter write;
 	private static ArrayList<String> productionWithEpsilon = new ArrayList<>();
 	private static ArrayList<String> productionWithEpsilonInFirstSet = new ArrayList<>();
-	private static final String INPUT_FILE_PATH = "data/inputFiles/input.txt";
-	private static final String ERROR_FILE_PATH = "data/outputFiles/error.txt";
-	private static final String TOKEN_FILE_PATH = "data/outputFiles/tokenOutput.txt";
-	private static final String ATOCC_FILE_PATH = "data/outputFiles/aToCc.txt";
-	private static final String GRAMMAR_FILE_PATH = "data/inputFiles/grammar.txt";
-	private static final String FIRSTSETS_FILE_PATH = "data/inputFiles/firstSets.txt";
-	private static final String FOLLOWSETS_FILE_PATH = "data/inputFiles/followSets.txt";
-	private static final String DERIVATION_FILE_PATH = "data/outputFiles/derivation.txt";
-	private static final String SYMTABLE_FILE_PATH = "data/outputFiles/sym-table.txt";
 	
 	/**
 	 * Reads the input and omits the the slash-slash and slash-star comments
+	 * 
 	 * @return a collection of source code with their respective line number in the input file
-	 * @throws IOException
+	 * @throws IOException handles the I/O related interruptions
 	 */
-	public static TreeMap<Integer, String> readInput() throws IOException {
+	public static TreeMap<Integer, String> readInput(String inputPath) throws IOException {
 
-		read = new BufferedReader(new InputStreamReader(new FileInputStream(INPUT_FILE_PATH)));
+		read = new BufferedReader(new InputStreamReader(new FileInputStream("data/inputFiles/input.txt")));
 		String line = "";
 		int lineNumber = 0;
 		TreeMap<Integer, String> input = new TreeMap<>();
@@ -67,6 +59,7 @@ public class DataReadWrite {
 						} else if (line.charAt(currentChar) == '*') {
 
 							String intialLine = line;
+							int nestedBlock  = 1;
 							int currentLineLength = line.length();
 
 							// Consuming Input before the start of slash-star comment
@@ -81,7 +74,9 @@ public class DataReadWrite {
 								break;
 							}
 
-							while ((line = read.readLine()) != null && (!line.contains("*/"))) {
+							while ((line = read.readLine()) != null && (nestedBlock > 0)) {
+								if 		(line.contains("/*")) {	nestedBlock++;	}
+								else if (line.contains("*/")) {	nestedBlock--;	}
 								lineNumber++;
 							}
 
@@ -116,13 +111,14 @@ public class DataReadWrite {
 	}
 
 	/**
-	 * Writes the output to the output.txt file
+	 * Writes the output
+	 * 
 	 * @param tokens Data structure containing the token information (token type, token value, location in source code)
-	 * @throws IOException
+	 * @throws IOException handles the I/O related interruptions
 	 */
 	public static void writeOutput(List<Token> tokens) throws IOException {
 	
-		write = new BufferedWriter(new FileWriter(new File(TOKEN_FILE_PATH)));
+		write = new BufferedWriter(new FileWriter(new File(Constants.TOKEN_FILE_PATH)));
 		try {
 	
 			for (Token token : tokens) {
@@ -141,12 +137,13 @@ public class DataReadWrite {
 
 	/**
 	 * Outputs the token type in AToCc format
+	 * 
 	 * @param aToCcFormat List containing the token type in AToCc format
-	 * @throws IOException
+	 * @throws IOException handles the I/O related interruptions
 	 */
 	public static void writeAToCc(List<String> aToCcFormat) throws IOException {
 
-		write = new BufferedWriter(new FileWriter(new File(ATOCC_FILE_PATH)));
+		write = new BufferedWriter(new FileWriter(new File(Constants.ATOCC_FILE_PATH)));
 		try {
 
 			for (String aToCc : aToCcFormat) {
@@ -165,13 +162,13 @@ public class DataReadWrite {
 	}
 	
 	/**
-	 * Prints the error messages in the error.txt file
+	 * Prints the error messages
 	 * @param map errors encountered in the given input
-	 * @throws IOException
+	 * @throws IOException handles the I/O related interruptions
 	 */
 	public static void writeErrors(Map<Integer, ArrayList<String>> map) throws IOException {
 
-		write = new BufferedWriter(new FileWriter(new File(ERROR_FILE_PATH)));
+		write = new BufferedWriter(new FileWriter(new File(Constants.ERROR_FILE_PATH)));
 		try {
 
 			Integer lineNumber;
@@ -203,9 +200,15 @@ public class DataReadWrite {
 		}
 	}
 
+	/**
+	 * Reads the grammar
+	 * 
+	 * @return rules (productions) of the grammar required for parsing
+	 * @throws IOException handles the I/O related interruptions
+	 */
 	public static TreeMap<String, String> readGrammar() throws IOException {
 		
-		read = new BufferedReader(new InputStreamReader(new FileInputStream(GRAMMAR_FILE_PATH)));
+		read = new BufferedReader(new InputStreamReader(new FileInputStream(Constants.GRAMMAR_FILE_PATH)));
 		int productionNumber = 0;
 		String production = "";
 		String LHS = "";
@@ -237,9 +240,15 @@ public class DataReadWrite {
 		return grammar;
 	}
 	
+	/**
+	 * Reads the first sets of all non-terminals
+	 * 
+	 * @return collection of all non-terminals and their corresponding first sets.
+	 * @throws IOException handles the I/O related interruptions
+	 */
 	public static TreeMap<String, ArrayList<String>> readFirstSets() throws IOException {
 		
-		read = new BufferedReader(new InputStreamReader(new FileInputStream(FIRSTSETS_FILE_PATH)));
+		read = new BufferedReader(new InputStreamReader(new FileInputStream(Constants.FIRSTSETS_FILE_PATH)));
 		String set = "";
 		TreeMap<String, ArrayList<String>> firstSets = new TreeMap<>();
 		
@@ -277,9 +286,15 @@ public class DataReadWrite {
 		return firstSets;
 	}
 	
+	/**
+	 * Reads the follow sets of non-terminals
+	 * 
+	 * @return collection of non-terminals and their corresponding follow sets.
+	 * @throws IOException handles the I/O related interruptions
+	 */
 	public static TreeMap<String, ArrayList<String>> readFollowSets() throws IOException {
 		
-		read = new BufferedReader(new InputStreamReader(new FileInputStream(FOLLOWSETS_FILE_PATH)));
+		read = new BufferedReader(new InputStreamReader(new FileInputStream(Constants.FOLLOWSETS_FILE_PATH)));
 		String set = "";
 		TreeMap<String, ArrayList<String>> followSets = new TreeMap<>();
 		
@@ -311,49 +326,35 @@ public class DataReadWrite {
 		return followSets;
 	}
 	
-	public static Stack<String> readTokensInAToCcFormat() throws IOException {
-		
-		read = new BufferedReader(new InputStreamReader(new FileInputStream(ATOCC_FILE_PATH)));
-		String aToCc = "";
-		Stack<String> tokenStack = new Stack<>();
-		
-		try {
-			
-			if ((aToCc = read.readLine()) != null) {
-				
-				aToCc+="$";
-			}
-			
-			for (int i = aToCc.split("\\s").length-1; i >= 0; i--) {
-				
-				tokenStack.push(aToCc.split("\\s")[i]);
-			}
-			
-			
-		} catch (Exception e) {
-			
-			e.printStackTrace();
-		} finally {
-			
-			read.close();
-		}
-		
-		return tokenStack;
-	}
-	
+	/**
+	 * Productions with epsilon
+	 * 
+	 * @return rules with epsilon
+	 */
 	public static ArrayList<String> productionsWithEpsilon() {
 		
 		return productionWithEpsilon;
 	}
 	
+	/**
+	 * Productions with epsilon
+	 * 
+	 * @return rules with epsilon in the first set
+	 */
 	public static ArrayList<String> productionsWithEpsilonInFirstSets() {
 		
 		return productionWithEpsilonInFirstSet;
 	}
 	
+	/**
+	 * Writes the derivation after parsing
+	 * 
+	 * @param derivation list of step-by-step derivation of the input program
+	 * @throws IOException handles the I/O related interruptions
+	 */
 	public static void writeDerivation(List<String> derivation) throws IOException {
 		
-		write = new BufferedWriter(new FileWriter(new File(DERIVATION_FILE_PATH)));
+		write = new BufferedWriter(new FileWriter(new File(Constants.DERIVATION_FILE_PATH)));
 		try {
 	
 			for (String string : derivation) {
@@ -372,9 +373,15 @@ public class DataReadWrite {
 	
 	}
 
+	/**
+	 * Writes the symbol table
+	 * 
+	 * @param symbolTables list of all entries of the symbol table
+	 * @throws IOException handles the I/O related interruptions
+	 */
 	public static void writeSymbolTables(List<String> symbolTables) throws IOException {
 		
-		write = new BufferedWriter(new FileWriter(new File(SYMTABLE_FILE_PATH)));
+		write = new BufferedWriter(new FileWriter(new File(Constants.SYMTABLE_FILE_PATH)));
 		try {
 	
 			for (String string : symbolTables) {
@@ -383,6 +390,52 @@ public class DataReadWrite {
 				write.newLine();
 			}
 			
+		} catch (Exception e) {
+	
+			e.printStackTrace();
+		} finally {
+	
+			write.close();
+		}
+	
+	}
+	
+	/**
+	 * Outputs the moon code
+	 * 
+	 * @param moonCode moon code instructions
+	 * @throws IOException handles the I/O related interruptions
+	 */
+	public static void writeMoonCode(String moonCode) throws IOException {
+		
+		write = new BufferedWriter(new FileWriter(new File(Constants.MOONCODE_FILE_PATH)));
+		try {
+	
+			write.write(moonCode);
+			
+		} catch (Exception e) {
+	
+			e.printStackTrace();
+		} finally {
+	
+			write.close();
+		}
+	
+	}
+	
+	/**
+	 * Outputs the Abstract Syntax Tree
+	 * 
+	 * @param abstractTree level-by-level collection of AST nodes
+	 * @throws IOException handles the I/O related interruptions
+	 */
+	public static void writeAST(String abstractTree) throws IOException {
+		
+		write = new BufferedWriter(new FileWriter(new File(Constants.AST_FILE_PATH)));
+		try {
+	
+			write.write(abstractTree);
+
 		} catch (Exception e) {
 	
 			e.printStackTrace();

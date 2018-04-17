@@ -1,26 +1,29 @@
-
-class A {
-    int xyz;
-    int calculate(int a, int b);
+class Student {
+    int marks;
 };
 
-int A :: calculate (int a, int b) {
+int highestMarks(Student s1, Student s2) {
     int result;
-    result = a*(a+b);
-    return (result);
-};
-
-int b(int a, int b) {
-    int result;
-    return (result);
+    if(s1.marks > s2.marks) then {
+        result = s1.marks;
+    } else {
+        result = s2.marks;
+    };
+    return(result);
 };
 
 program {
-    int maxValue;
-    int array[100];
-    int n;
-    int b;
-    A abc;
-    maxValue=b(10,2);
-    abc.xyz = 10;
+    int highest;
+    int topper;
+    Student s1;
+    Student s2;
+    s1.marks = 80;
+    s2.marks = 120;
+    highest = highestMarks(s1,s2);
+    if(highest == s1.marks) then {
+        topper = 1;
+    } else {
+        topper = 2;
+    };
+    put(topper);
 };
