@@ -1,38 +1,47 @@
-f_calculate				sw -20(r14), r15
-				lw r3, -4(r14)		% loading variable value in register
-				lw r4, -8(r14)		% loading variable value in register
-				add r2, r3, r4
-				sw -12(r14), r2		% storing expression value in the moon memory
-				lw r2, -12(r14)		% loading variable value in register
-				sw temp_var(r0), r2	% store the return value in a temporary variable
+f_highestMarks				sw -20(r14), r15
+				lw r7, -4(r14)		% loading variable value in register
+				lw r8, -8(r14)		% loading variable value in register
+				cgt r6, r7, r8
+				bz r6, else_block1		% jump to else block
+				lw r6, -4(r14)		% loading variable value in register
+				sw -12(r14), r6		% storing expression value in the moon memory
+				j end_if1			% end if-else block
+else_block1				lw r6, -8(r14)		% loading variable value in register
+				sw -12(r14), r6		% storing expression value in the moon memory
+				end_if1 nop
+				lw r6, -12(r14)		% loading variable value in register
+				sw temp_var(r0), r6	% store the return value in a temporary variable
 				lw r15, -20(r14)
-				jr r15			% jump back to the calling function
-f_add				sw -32(r14), r15
-				lw r3, -4(r14)		% loading variable value in register
-				lw r4, -8(r14)		% loading variable value in register
-				add r2, r3, r4
-				sw -12(r14), r2		% storing expression value in the moon memory
-				lw r2, -24(r14)		% loading variable value in register
-				sw temp_var(r0), r2	% store the return value in a temporary variable
-				lw r15, -32(r14)
 				jr r15			% jump back to the calling function
 				entry
 				addi r14, r0, topaddr	% stack pointer
-				jl r15, getint			% prompts the user for variable value
-				sw -4(r14), r1		% loading variable value in register
-				jl r15, getint			% prompts the user for variable value
-				sw -8(r14), r1		% loading variable value in register
-				lw r2, -4(r14)		% loading variable value in register
-				sw -36(r14), r2		% passing argument to the function parameter
-				lw r2, -8(r14)		% loading variable value in register
-				sw -40(r14), r2		% passing argument to the function parameter
-				addi r14, r14, -32	% updating the stack pointer for the function call
-				jl r15, f_add		% function call
-				subi r14, r14, -32	% updating the stack pointer for the function call
-				lw r2, temp_var(r0)	% value returned by function
-				sw -28(r14), r2		% storing the returned value
-				lw r2, -28(r14)		% loading variable value in register
-				sw -24(r14), r2		% storing expression value in the moon memory
+				addi r6, r0, 80		% processing value: 80
+				sw -12(r14), r6		% storing expression value in the moon memory
+				addi r6, r0, 120		% processing value: 120
+				sw -16(r14), r6		% storing expression value in the moon memory
+				lw r6, -12(r14)		% loading variable value in register
+				sw -28(r14), r6		% passing argument to the function parameter
+				lw r6, -16(r14)		% loading variable value in register
+				sw -32(r14), r6		% passing argument to the function parameter
+				addi r14, r14, -24	% updating the stack pointer for the function call
+				jl r15, f_highestMarks		% function call
+				subi r14, r14, -24	% updating the stack pointer for the function call
+				lw r6, temp_var(r0)	% value returned by function
+				sw -20(r14), r6		% storing the returned value
+				lw r6, -20(r14)		% loading variable value in register
+				sw -4(r14), r6		% storing expression value in the moon memory
+				lw r7, -4(r14)		% loading variable value in register
+				lw r8, -12(r14)		% loading variable value in register
+				ceq r6, r7, r8
+				bz r6, else_block2		% jump to else block
+				addi r6, r0, 1		% processing value: 1
+				sw -8(r14), r6		% storing expression value in the moon memory
+				j end_if2			% end if-else block
+else_block2				addi r6, r0, 2		% processing value: 2
+				sw -8(r14), r6		% storing expression value in the moon memory
+				end_if2 nop
+				lw r1, -8(r14)		% loading variable value in register
+				jl r15, putint				% output the variable value
 				hlt
 				
 temp_var				res	4

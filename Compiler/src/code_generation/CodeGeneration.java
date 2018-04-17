@@ -27,6 +27,7 @@ public class CodeGeneration {
 	private String moonCodeIndent;
 	private String moonTagBlock;
 	private Stack<String> registerPool;
+	private int ifElseCounter;
 	
 	/**
 	 * Initializes the global objects for the class after which the code generation phase is fired.
@@ -40,6 +41,8 @@ public class CodeGeneration {
 		moonCodeIndent = new String("				");
 		moonTagBlock = "";
 		registerPool = new Stack<String>();
+		// counter for if-else condition
+		ifElseCounter = 0;
 		
 		tableObj.setTables(tables);
 		globalTable = tableObj.findTable("global");
@@ -58,8 +61,9 @@ public class CodeGeneration {
 		System.out.println();
 		
 		// create a pool of registers as a stack of Strings
-		// assuming only r1, ..., r12 are available
-		for (Integer i = 12; i > 1; i--) {
+		// assuming only r6, ..., r12 are available
+		// r1, r2, r3, r4, r5 reserved for I/O
+		for (Integer i = 12; i > 5; i--) {
 			registerPool.push("r"+i.toString());
 		}
 		
@@ -103,6 +107,7 @@ public class CodeGeneration {
 		int bufferSize1 = 4;
 		// reserving memory for storing instruction address
 		int bufferSize2 = 4;
+		
 		String key = node.getNodeType();
 		
 		switch (key) {
@@ -173,19 +178,27 @@ public class CodeGeneration {
 		case "getStat":
 			offset = varNode(node.getChildrens().get(0));
 			moonExecCode += moonCodeIndent +"jl r15, getint			% prompts the user for variable value\n";
+			if (offset.startsWith("r")) {
+				moonExecCode += moonCodeIndent +"sub r14, r14, "+offset+"\n";
+				moonExecCode += moonCodeIndent +"sw 0(r14), "+IORegister+"\n";
+				moonExecCode += moonCodeIndent +"add r14, r14, "+offset+"\n";
+				registerPool.push(offset);
+				break;
+			}
 			moonExecCode += moonCodeIndent +"sw "+offset+"(r14), "+IORegister+"		% loading variable value in register\n";
 			break;
 			
 		case "ifStat":
+			ifElseCounter++;
 			localRegister = relOp(node.getChildrens().get(0));
-			moonExecCode += moonCodeIndent +"bz "+localRegister+", else_block		% jump to else block\n";
+			moonExecCode += moonCodeIndent +"bz "+localRegister+", else_block"+ifElseCounter+"		% jump to else block\n";
 			registerPool.push(localRegister);
 			traverseAst(node.getChildrens().get(1));
-			moonExecCode += moonCodeIndent +"j end_if			% end if-else block\n";
-			moonTagBlock = "else_block";
+			moonExecCode += moonCodeIndent +"j end_if"+ifElseCounter+"			% end if-else block\n";
+			moonTagBlock = "else_block"+ifElseCounter;
 			moonExecCode += moonTagBlock;
 			traverseAst(node.getChildrens().get(2));
-			moonExecCode += moonCodeIndent +"end_if nop\n";			
+			moonExecCode += moonCodeIndent +"end_if"+ifElseCounter+" nop\n";			
 			return;
 			
 		case "forStat":
