@@ -86,6 +86,7 @@ public class Semantic {
 		System.out.println();
 		phaseOne(root);
 		phaseTwo(root);
+		circularClassDependencies();
 		calculateMemorySize();
 		
 		System.out.println("************* Printing Tree after Type Checking ************");
@@ -1214,6 +1215,44 @@ public class Semantic {
 		
 		return size;		
 	}
+	
+	/**
+	 * Function checks for the circular class dependencies.
+	 * It follows the concept that if the inherited class list of a symbol table
+	 * in the inherited list of a class has the common class then there is circularity
+	 * in the classes. (For example, A extends B, B extends C|A, then there is circularity)
+	 */
+	public void circularClassDependencies() {
+		
+		SymTable inheritedClass;
+		SymTableEntry entry;
+		// get all the global entries
+		for (SymTableEntry globalEntry : globalTable.getEntries()) {
+			// proceed further if an entry has inherited class list 
+			if (globalEntry.getInheritedClassList().size() > 0) {
+				// get the inherited class list for the current global entry
+				for (int i = 0; i < globalEntry.getInheritedClassList().size(); i++) {
+					inheritedClass = globalEntry.getInheritedClassList().get(i);
+					// entry in the global table for the current inherited class
+					entry = tableObj.searchRecord(globalTable, inheritedClass.getTableName());
+					// proceed further if an entry has inherited class list 
+					if (entry.getInheritedClassList().size() > 0) {
+						for (int j = 0; j < entry.getInheritedClassList().size(); j++) {
+							if (entry.getInheritedClassList().get(j).getTableName().equals(globalEntry.getName()) ) {
+								util.setMap(map);
+								Integer lineNumber = 0;
+								map = util.reportError(lineNumber, "Warning: circular class dependency exists for the class "+globalEntry.getName()+" with other classes");
+								return;
+							}
+						}
+					}
+				}
+			}			
+		}
+	}
+	
+	
+	
 	
 	/**
 	 * Prints the symbol table
