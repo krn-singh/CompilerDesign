@@ -1,0 +1,33 @@
+class A {
+  int temp;
+  int operation(int a);
+};
+
+class B: A {
+};
+
+/*
+int A :: operation(int x) {
+  int result;
+  result = x + x;
+  return (result);
+};
+*/
+
+int add(int x, int y) {
+    int result;
+    result = x + y;
+    return (result);
+};
+
+program {
+    int a;
+    float b;
+    int sum;
+    B abc;
+    sum = add(a);             // invalid parameters
+    sum = abc.xyz;            // Undeclared variable
+    sum = abc.temp;
+    sum = subtract(a);        // undeclared function
+    sum = abc.operation(a);   // Undefined function
+};

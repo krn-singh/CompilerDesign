@@ -1,0 +1,34 @@
+class Inherited {
+    int member1;
+};
+
+class Utility : Inherited {
+    int var1[4][5][7];
+    float var2;
+    int findMax(int array[100]);
+    int findMin(int array[100]);
+};
+
+int Utility::findMax(int array[100]){
+    int maxValue;
+    int idx;
+};
+
+int Utility::findMin(int array[100]){
+    int minValue;
+    int idx;
+};
+
+float randomize(){
+    float value;
+};
+
+program {
+    int sample[100];
+    int idx;
+    int maxValue;
+    int maxValue;       // semantic error
+    int minValue;
+    Utility utility;
+    Utility arrayUtility[2][3];
+};

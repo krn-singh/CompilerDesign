@@ -1,0 +1,18 @@
+class A : B {
+};
+
+class B : C {
+  int temp;
+};
+
+class D {
+};
+
+class C : A {
+};
+
+
+
+program {
+    int a;
+};

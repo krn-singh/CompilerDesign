@@ -1,0 +1,27 @@
+/*
+  Sample program
+  /*
+    Sample program
+    Hello World
+  */
+  Hello World
+*/
+
+@
+
+program { if a then b }
+
+0123                    //  [integer:0][integer:123]
+01.23                   //  [integer:0][float:1.23]
+01.230                  //  [integer:0][float:1.23][integer:0]
+1.23                    //  valid float
+12.34e01                //  [12.34e0][integer:1]
+12345.6789e-123          //  valid float
+abc1_                   //  [id:abc1_]
+_abc1                   //  [Invalid identifier:_abc1] or [id:abc1]
+1abc                    //  [integer:1][id:abc]
+
+
+/*
+_abc1                   //  unending block comment
+1abc

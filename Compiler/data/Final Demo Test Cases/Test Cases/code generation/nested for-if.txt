@@ -1,0 +1,15 @@
+program {
+    int a[10];
+    int maxValue;
+    maxValue = 5;
+    for( int idx = 0; idx < 50; idx = idx + 1 ){
+        a[idx] = idx;
+        if(a[idx] > maxValue) then {
+            maxValue = a[idx];
+        } else {};
+    };
+    put(maxValue);
+};
+
+
+// maxValue = 49;
