@@ -1,0 +1,18 @@
+float add(int x, int y) {
+    int result;
+    result = x + y;
+    return (result);
+};
+
+program {
+    int a;
+    int b;
+    int sum;
+    a = 62.2;         // typeerror
+    a = 2 * 3.3 + 3;  // typeerror
+    a = 2;
+    b = 7.1;          // typeerror
+    a = 62;
+    b = 7;
+    sum = add(a,b);   // typeerror
+};

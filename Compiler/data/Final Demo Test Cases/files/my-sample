@@ -1,0 +1,562 @@
+
+============================
+
+    program {
+        int a;
+        a = 2;
+        if(a == 65) then {
+            a = 65;
+        } else {
+            a = 66;
+        };
+        put (a);
+    };
+
+============================
+
+program {
+    int a;
+    a = 65;
+    for( int idx = 10; idx > 8; idx = idx - 1 ){
+        a = a + 5;
+        put (a);
+    };
+};
+
+
+============================
+
+int add(int x, int y) {
+    int result;
+    result = x + y;
+    return (result);
+};
+
+program {
+    int a;
+    int b;
+    int sum;
+    a = 62;
+    b = 7;
+    sum = add(a,b);
+    put(sum);
+};
+
+
+============================
+
+int add(int x, int y) {
+    int result;
+    result = x + y;
+    return (result);
+};
+
+program {
+    int a;
+    int b;
+    int sum;
+    a = 20;
+    b = 5;
+    sum = add(a,b) * 2 + 6;
+    put(sum);
+};
+
+
+============================
+
+
+int add(int x, int y) {
+    int plus;
+    plus = x + y;
+    return (plus);
+};
+
+int result(int p, int q) {
+    int result;
+    result = add(p,q);
+    return (result);
+};
+
+program {
+    int a;
+    int b;
+    int sum;
+    a = 60;
+    b = 5;
+    sum = result(a,b);
+    put(sum);
+};
+
+============================
+
+
+program {
+    int a[2];
+    int result;
+    a[0] = 60;
+    a[1] = 20;
+    result = a[0] + a[1];
+    put(result);
+};
+
+============================
+
+program {
+    int x[2];
+    int a;
+    int b;
+    int result;
+    a = 0;
+    b = 1;
+    x[a] = 65;
+    x[b] = 5;
+    result = x[a] + x[b];
+    put(result);
+};
+
+
+============================
+
+program {
+    int a[10];
+    int result;
+    result = 0;
+    for( int idx = 0; idx < 10; idx = idx + 1 ){
+        a[idx] = idx;
+        result = result + a[idx];
+    };
+    put(result);
+};
+
+
+============================
+
+program {
+    int a[2];
+    int result;
+    a[0] = 6;
+    a[1] = 4;
+    result = a[0] + a[1] * 20;
+    put(result);
+};
+
+
+============================
+
+program {
+    int a;
+    int b;
+    a = 2;
+    b = 4;
+    if(a * 2 + 3 > b + 2) then {
+        a = 65;
+    } else {
+        a = 66;
+    };
+    put (a);
+};
+
+
+
+============================
+
+class A {
+    int xyz;
+    int calculate(int a, int b);
+};
+
+int A :: calculate (int a, int b) {
+    int result;
+    result = 2*(a+b);
+    return (result);
+};
+
+program {
+    int a;
+    int b;
+    int sum;
+    A abc;
+    a = 5;
+    b = 35;
+    sum = abc.calculate(a,b);
+    put(sum);
+};
+
+
+
+============================
+
+class A {
+    int xyz;
+    float temp;
+    int calculate(int a, int b);
+};
+
+int A :: calculate (int a, int b) {
+    int result;
+    result = 2*(a+b);
+    return (result);
+};
+
+int add(int x, int y) {
+    int result;
+    result = x + y;
+    return (result);
+};
+
+program {
+    int a;
+    int b;
+    int sum;
+    A abc;
+    a = 5;
+    b = 35;
+    sum = add(a,b);
+    put(sum);
+    sum = abc.calculate(a,b);
+    put(sum);
+};
+
+
+============================
+
+
+class A {
+    int x;
+};
+
+program {
+    A abc;
+    abc.x = 45;
+    put(abc.x);
+};
+
+
+============================
+
+class A {
+    int x;
+    int y;
+};
+
+program {
+    A abc;
+    abc.x = 45;
+    abc.y = 4;
+    put(abc.x);
+    put(abc.y);
+};
+
+
+
+============================
+
+class A {
+    int x;
+    int y;
+};
+
+program {
+    int result;
+    A abc;
+    abc.x = 45;
+    abc.y = 2;
+    result = abc.x * abc.y;
+    put(result);
+};
+
+
+============================
+
+class A {
+    int x;
+    int y;
+};
+
+class B : A {
+};
+
+program {
+    B abc;
+    abc.x = 90;
+    abc.y = 85;
+    put(abc.x);
+    put(abc.y);
+};
+
+
+============================
+
+program {
+    int a[10];
+    int maxValue;
+    maxValue = 5;
+    for( int idx = 0; idx < 50; idx = idx + 1 ){
+        a[idx] = idx;
+        if(a[idx] > maxValue) then {
+            maxValue = a[idx];
+        } else {};
+    };
+    put(maxValue);
+};
+
+
+
+============================
+
+
+program {
+    int a[2][2];
+    int result;
+    a[0][0] = 20;
+    a[0][1] = 20;
+    a[1][0] = 20;
+    a[1][1] = 20;
+    result = a[0][0] + a[0][1];
+    put(result);
+};
+
+============================
+
+
+program {
+    int number;
+    int sum;
+    sum = 0;
+    for( int i = 0; i < 10; i = i + 1 ){
+        for( int j = 0; j < 10; j = j + 1 ){
+            number = i + j;
+            sum = sum + number;
+        };
+    };
+    put(sum);
+};
+
+
+============================
+
+
+class Food {
+  int temp1;
+  int x;
+};
+
+class Fruit : Food{
+  int temp2;
+  int y;
+};
+
+class Apple : Fruit {
+  int temp3;
+  int z;
+};
+program {
+    int numberInt;
+    float numberFloat;
+    int array1d[1];
+    int array2d[2][2];
+    Fruit fruit[2];
+    Apple apple;
+
+    numberInt = 10;
+    array1d[0] = 20;
+    array2d[1][0] = 30;
+    apple.x = 40;         // data member of Food Class
+    apple.y = 50;         // data member of Fruit Class
+    apple.z = 60;         // data member of Apple Class
+};
+
+
+
+============================
+
+
+program {
+    int sum;
+    int a[10][10];
+    sum = 0;
+    for( int i = 0; i < 10; i = i + 1 ){
+        for( int j = 0; j < 10; j = j + 1 ){
+            a[i][j] = i + j;
+            sum = sum + a[i][j];
+        };
+    };
+    put(sum);
+};
+
+
+
+============================
+
+class A {
+    int xyz;
+    float temp;
+    int calculate(int a, int b);
+};
+
+int A :: calculate (int a, int b) {
+    int result;
+    result = a + b;
+    return (result);
+};
+
+int add(int x, int y) {
+    int result;
+    A abc;
+    result = abc.calculate(x,y);
+    return (result);
+};
+
+program {
+    int a;
+    int b;
+    int result;
+    get(a);
+    get(b);
+    result = add(a,b);
+    put(result);
+};
+
+
+
+============================
+
+
+class A {
+    int xyz;
+    float temp;
+    int calculate(int a, int b);
+};
+
+class B : A {
+
+};
+
+int A :: calculate (int a, int b) {
+    int result;
+    result = a + b;
+    return (result);
+};
+
+int add(int x, int y) {
+    int result;
+    A abc;
+    result = abc.calculate(x,y);
+    return (result);
+};
+
+program {
+    int a;
+    int b;
+    int result;
+    B abc;
+    get(a);
+    get(b);
+    result = add(a,b);
+    result = abc.calculate(a,b);
+    put(result);
+};
+
+
+
+============================
+
+
+class A {
+    int xyz;
+    float temp;
+    int calculate(int a, int b);
+};
+
+class B : A {
+
+};
+
+int A :: calculate (int a, int b) {
+    int result;
+    result = a + b;
+    return (result);
+};
+
+int add(int x[1], int y) {
+    int result;
+    result = x[0] + y;
+    return (x[0]);
+};
+
+program {
+    int a[1];
+    int b;
+    int result;
+    B abc;
+    get(a[0]);
+    get(b);
+    result = add(a[0],b);
+    put(result);
+};
+
+
+============================
+
+
+class A {
+    int xyz;
+    float temp;
+    int calculate(int a, int b);
+};
+
+class B : A {
+
+};
+
+int A :: calculate (int a, int b) {
+    int result;
+    result = a + b;
+    return (result);
+};
+
+A add(int x[1], int y) {
+    int result;
+    A abc;
+    result = x[0] + y;
+    return (abc);
+};
+
+program {
+    int a[1];
+    int b;
+    int result;
+    A abc;
+    get(a[0]);
+    get(b);
+    abc = add(a[0],b);
+};
+
+
+
+============================
+
+
+
+
+============================
+
+
+class A : B {
+};
+
+class B : C {
+  int temp;
+};
+
+class D {
+};
+
+class C : A {
+};
+
+
+
+program {
+    int a;
+};

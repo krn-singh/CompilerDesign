@@ -1,0 +1,124 @@
+prog 				-> classDeclList funcDefList program funcBody ;
+classDeclList		-> classDecl classDeclList
+classDeclList		-> EPSILON			   
+funcDefList 		-> funcDef funcDefList
+funcDefList 		-> EPSILON
+classDecl 			-> class id inheritedList { memberList } ;
+inheritedList		-> : id idInClassDeclList
+inheritedList		-> EPSILON
+idInClassDeclList	-> , id idInClassDeclList
+idInClassDeclList	-> EPSILON
+memberList			-> type id memberListNew
+memberList			-> EPSILON
+memberListNew		-> varDecl memberList
+memberListNew		-> funcDecl funcInClass
+funcInClass			-> type id funcInClassNew
+funcInClass			-> EPSILON
+funcInClassNew		-> funcDecl funcInClass
+funcDecl 			-> ( fParams ) ;
+funcHead 			-> type funcHeadId ( fParams )
+funcHeadId 			-> id funcHeadIdNew
+funcHeadIdNew 		-> sr id
+funcHeadIdNew 		-> EPSILON
+funcDef 			-> funcHead funcBody ;
+funcBody 			-> { varStatinFunc }
+varStatinFunc		-> varStat varStatinFunc
+varStatinFunc		-> varStatNew varStatinFuncNew
+varStatinFunc		-> EPSILON
+varStatinFuncNew	-> varStatNew varStatinFuncNew
+varStatinFuncNew	-> EPSILON
+varStat				-> typeNew id varDecl
+varStatNew			-> id varStatTail
+varStatNew			-> statementOther
+varStatTail			-> id varDecl
+varStatTail			-> indiceList idnestList assignStatTail ;
+varStatTail			-> ( aParams ) idnestList assignStatTail ;
+assignStatTail		-> assignOp expr
+typeNew				-> float
+typeNew				-> int
+statementOther		-> if ( expr ) then statBlock else statBlock ;
+statementOther		-> for ( type id assignOp expr ; relExpr ; assignStat ) statBlock ;
+statementOther		-> get ( variable ) ;
+statementOther		-> put ( expr ) ;
+statementOther		-> return ( expr ) ;
+statementList 		-> statement statementList
+statementList 		-> EPSILON
+varDecl 			-> arraySizeList ;
+arraySizeList		-> arraySize arraySizeList
+arraySizeList		-> EPSILON
+statement 			-> assignStat ;
+statement 			-> if ( expr ) then statBlock else statBlock ;
+statement 			-> for ( type id assignOp expr ; relExpr ; assignStat ) statBlock ;
+statement 			-> get ( variable ) ;
+statement 			-> put ( expr ) ;
+statement 			-> return ( expr ) ;
+assignStat 			-> variable assignOp expr
+statBlock 			-> { statementList }
+statBlock 			-> statement
+statBlock 			-> EPSILON
+expr 				-> arithExpr exprNew
+exprNew 			-> EPSILON
+exprNew 			-> relOp arithExpr
+relExpr 			-> arithExpr relOp arithExpr
+arithExpr 			-> term arithExprNew
+arithExprNew 		-> addOp term arithExprNew
+arithExprNew 		-> EPSILON
+sign 				-> + 
+sign 				-> -
+term 				-> factor termNew
+termNew 			-> multOp factor termNew
+termNew 			-> EPSILON
+factor 				-> varFunc
+factor 				-> intNum
+factor 				-> floatNum
+factor 				-> ( arithExpr )
+factor 				-> not factor
+factor 				-> sign factor
+variable 			-> id variableNew
+variableNew			-> indiceList idnestList
+variableNew			-> ( aParams ) idnestList
+varFunc 			-> id indiceList idnestListNew varFuncTail
+varFuncTail			-> ( aParams ) varFuncTail2
+varFuncTail			-> EPSILON
+varFuncTail2		-> idnest
+varFuncTail2		-> EPSILON
+idnestListNew		-> idnestNew idnestListNew
+idnestListNew		-> EPSILON
+indiceList			-> indice indiceList
+indiceList			-> EPSILON
+idnestNew 			-> . idnestNewTail
+idnestNewTail		-> id indiceList
+idnestNewTail		-> ( aParams )
+indice 				-> [ arithExpr ]
+idnestList			-> idnest idnestList
+idnestList			-> EPSILON
+idnest 				-> . id indiceList
+arraySize 			-> [ intNum ]
+type 				-> int
+type 				-> float
+type 				-> id
+arraySizeList		-> arraySize arraySizeList
+arraySizeList		-> EPSILON
+fParams 			-> type id arraySizeList fParamsTailList
+fParams 			-> EPSILON
+fParamsTailList		-> fParamsTail fParamsTailList
+fParamsTailList		-> EPSILON
+aParams 			-> expr aParamsTailList
+aParams 			-> EPSILON
+aParamsTailList		-> aParamsTail aParamsTailList
+aParamsTailList		-> EPSILON
+fParamsTail 		-> , type id arraySizeList
+aParamsTail 		-> , expr
+assignOp 			-> =
+relOp 				-> eq
+relOp 				-> neq
+relOp 				-> lt
+relOp 				-> gt
+relOp 				-> leq
+relOp 				-> geq
+addOp 				-> +
+addOp 				-> -
+addOp 				-> or
+multOp 				-> *
+multOp 				-> /
+multOp 				-> and

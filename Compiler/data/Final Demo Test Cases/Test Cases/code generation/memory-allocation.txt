@@ -1,0 +1,29 @@
+class Food {
+  int temp1;
+  int x;
+};
+
+class Fruit : Food{
+  int temp2;
+  int y;
+};
+
+class Apple : Fruit {
+  int temp3;
+  int z;
+};
+program {
+    int numberInt;
+    float numberFloat;
+    int array1d[1];
+    int array2d[2][2];
+    Fruit fruit[2];
+    Apple apple;
+
+    numberInt = 10;
+    array1d[0] = 20;
+    array2d[1][0] = 30;
+    apple.x = 40;         // data member of Food Class
+    apple.y = 50;         // data member of Fruit Class
+    apple.z = 60;         // data member of Apple Class
+};

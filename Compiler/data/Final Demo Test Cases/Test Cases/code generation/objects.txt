@@ -1,0 +1,29 @@
+class Student {
+    int marks;
+};
+
+int highestMarks(Student s1, Student s2) {
+    int result;
+    if(s1.marks > s2.marks) then {
+        result = s1.marks;
+    } else {
+        result = s2.marks;
+    };
+    return(result);
+};
+
+program {
+    int highest;
+    int topper;
+    Student s1;
+    Student s2;
+    s1.marks = 80;
+    s2.marks = 120;
+    highest = highestMarks(s1,s2);
+    if(highest == s1.marks) then {
+        topper = 1;
+    } else {
+        topper = 2;
+    };
+    put(topper);
+};

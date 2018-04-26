@@ -1,0 +1,18 @@
+class A {
+    int x;
+    int y;
+};
+
+class B : A {
+};
+
+program {
+    int result;
+    B abc;
+    abc.x = 90;
+    abc.y = 10;
+    put(abc.x);                 // 90
+    put(abc.y);                 // 10
+    result = abc.x * abc.y;     // 900
+    put(result);
+};
